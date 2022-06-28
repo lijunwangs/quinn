@@ -968,6 +968,10 @@ impl Connection {
             "zzzzzz Closing the connection explicitly via ApplicationClose for address {:?}",
             self.remote_address()
         );
+        println!(
+            "zzzzzz Closing the connection explicitly via ApplicationClose for address {:?}",
+            self.remote_address()
+        );        
         self.close_inner(
             now,
             Close::Application(frame::ApplicationClose { error_code, reason }),

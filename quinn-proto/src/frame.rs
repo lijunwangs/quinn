@@ -585,6 +585,7 @@ impl Iter {
             })),
             Type::APPLICATION_CLOSE => {
                 info!("zzzzzz Got ApplicationClose");
+                println!("zzzzzz Got ApplicationClose");    
                 Frame::Close(Close::Application(ApplicationClose {
                     error_code: self.bytes.get()?,
                     reason: self.take_len()?,
