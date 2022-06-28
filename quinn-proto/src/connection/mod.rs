@@ -14,6 +14,8 @@ use rand::{rngs::StdRng, Rng, SeedableRng};
 use thiserror::Error;
 use tracing::{debug, error, trace, trace_span, warn};
 
+use log::*;
+
 use crate::{
     cid_generator::ConnectionIdGenerator,
     cid_queue::CidQueue,
@@ -962,6 +964,10 @@ impl Connection {
     ///
     /// [`StreamEvent::Finished`]: crate::StreamEvent::Finished
     pub fn close(&mut self, now: Instant, error_code: VarInt, reason: Bytes) {
+        info!(
+            "zzzzzz Closing the connection explicitly via ApplicationClose for address {:?}",
+            self.remote_address()
+        );
         self.close_inner(
             now,
             Close::Application(frame::ApplicationClose { error_code, reason }),

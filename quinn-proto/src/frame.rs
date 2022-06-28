@@ -7,6 +7,8 @@ use std::{
 use bytes::{Buf, BufMut, Bytes};
 use tinyvec::TinyVec;
 
+use log::*;
+
 use crate::{
     coding::{self, BufExt, BufMutExt, UnexpectedEnd},
     range_set::ArrayRangeSet,
@@ -581,10 +583,13 @@ impl Iter {
                 },
                 reason: self.take_len()?,
             })),
-            Type::APPLICATION_CLOSE => Frame::Close(Close::Application(ApplicationClose {
-                error_code: self.bytes.get()?,
-                reason: self.take_len()?,
-            })),
+            Type::APPLICATION_CLOSE => {
+                info!("zzzzzz Got ApplicationClose");
+                Frame::Close(Close::Application(ApplicationClose {
+                    error_code: self.bytes.get()?,
+                    reason: self.take_len()?,
+                }))
+            }
             Type::MAX_DATA => Frame::MaxData(self.bytes.get()?),
             Type::MAX_STREAM_DATA => Frame::MaxStreamData {
                 id: self.bytes.get()?,
