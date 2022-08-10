@@ -229,6 +229,7 @@ impl Connection {
         now: Instant,
         version: u32,
     ) -> Self {
+        info!("Creating a connection {:?} {}", local_ip, remote);
         let side = if server_config.is_some() {
             Side::Server
         } else {
