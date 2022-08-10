@@ -19,6 +19,9 @@ use fxhash::FxHashMap;
 use proto::{
     self as proto, ClientConfig, ConnectError, ConnectionHandle, DatagramEvent, ServerConfig,
 };
+
+use tracing::{debug, info, trace, warn};
+
 use udp::{RecvMeta, UdpSocket, UdpState, BATCH_SIZE};
 
 use crate::{
@@ -325,7 +328,9 @@ pub(crate) struct EndpointInner {
 
 impl EndpointInner {
     fn drive_recv<'a>(&'a mut self, cx: &mut Context, now: Instant) -> Result<bool, io::Error> {
-        self.recv_limiter.start_cycle();
+
+        info!("drive the receive socket {:?}", self.socket);
+        self.recv_limiter.start_cycle();        
         let mut metas = [RecvMeta::default(); BATCH_SIZE];
         let mut iovs = MaybeUninit::<[IoSliceMut<'a>; BATCH_SIZE]>::uninit();
         self.recv_buf
