@@ -832,7 +832,7 @@ impl Connection {
     /// extracted through the relevant methods.
     pub fn handle_event(&mut self, event: ConnectionEvent) {
 
-        info!("Handling event {:?} {:?}", event, self.config);
+        info!("Handling event server? {:?} transport_config {:?} event {:?}", self.server_config.is_some(),  self.config, event);
         use self::ConnectionEventInner::*;
         match event.0 {
             Datagram {
