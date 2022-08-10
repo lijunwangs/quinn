@@ -831,6 +831,8 @@ impl Connection {
     /// (including application `Event`s, `EndpointEvent`s and outgoing datagrams) that should be
     /// extracted through the relevant methods.
     pub fn handle_event(&mut self, event: ConnectionEvent) {
+
+        info!("Handling event {:?} {:?}", event, self.config);
         use self::ConnectionEventInner::*;
         match event.0 {
             Datagram {
