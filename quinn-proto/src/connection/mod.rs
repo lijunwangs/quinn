@@ -12,7 +12,7 @@ use bytes::{Bytes, BytesMut};
 use frame::StreamMetaVec;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use thiserror::Error;
-use tracing::{debug, error, trace, trace_span, warn};
+use tracing::{debug, error, info, trace, trace_span, warn};
 
 use crate::{
     cid_generator::ConnectionIdGenerator,
@@ -312,6 +312,7 @@ impl Connection {
         };
         if side.is_client() {
             // Kick off the connection
+            info!("Kick off the connection from client side! {:?} remote {}", local_ip, remote);
             this.write_crypto();
             this.init_0rtt();
         }
