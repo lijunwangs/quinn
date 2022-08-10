@@ -13,7 +13,7 @@ use fxhash::FxHashMap;
 use rand::{rngs::StdRng, Rng, RngCore, SeedableRng};
 use slab::Slab;
 use thiserror::Error;
-use tracing::{debug, trace, warn};
+use tracing::{debug, info, trace, warn};
 
 use crate::{
     cid_generator::{ConnectionIdGenerator, RandomConnectionIdGenerator},
@@ -448,7 +448,7 @@ impl Endpoint {
         rest: Option<BytesMut>,
         crypto: &Keys,
     ) -> Option<(ConnectionHandle, Connection)> {
-        println!("handle_first_packet called for remote {} local {:?}", remote, local_ip);
+        info!("handle_first_packet called for remote {} local {:?}", remote, local_ip);
         let (src_cid, dst_cid, token, packet_number, version) = match packet.header {
             Header::Initial {
                 src_cid,
