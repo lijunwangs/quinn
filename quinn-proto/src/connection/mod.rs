@@ -962,7 +962,7 @@ impl Connection {
     ///
     /// [`StreamEvent::Finished`]: crate::StreamEvent::Finished
     pub fn close(&mut self, now: Instant, error_code: VarInt, reason: Bytes) {
-        error!(
+        println!(
             "Closing connection {} {} {} error_code {} reason {:?}",
             self.orig_rem_cid,
             self.initial_dst_cid,
