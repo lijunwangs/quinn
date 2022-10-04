@@ -12,7 +12,7 @@ use bytes::{Bytes, BytesMut};
 use frame::StreamMetaVec;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use thiserror::Error;
-use tracing::{debug, error, trace, trace_span, warn};
+use tracing::{debug, error, info, trace, trace_span, warn};
 
 use crate::{
     cid_generator::ConnectionIdGenerator,
@@ -963,6 +963,14 @@ impl Connection {
     /// [`StreamEvent::Finished`]: crate::StreamEvent::Finished
     pub fn close(&mut self, now: Instant, error_code: VarInt, reason: Bytes) {
         println!(
+            "Closing connection {} {} {} error_code {} reason {:?}",
+            self.orig_rem_cid,
+            self.initial_dst_cid,
+            self.remote_address(),
+            error_code,
+            reason
+        );
+        info!(
             "Closing connection {} {} {} error_code {} reason {:?}",
             self.orig_rem_cid,
             self.initial_dst_cid,
