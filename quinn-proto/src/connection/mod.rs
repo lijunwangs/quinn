@@ -3,7 +3,7 @@ use std::{
     collections::VecDeque,
     convert::TryFrom,
     fmt, io, mem,
-    net::{IpAddr, SocketAddr},
+    net::{IpAddr, SocketAddr, Ipv4Addr},
     sync::Arc,
     time::{Duration, Instant},
 };
@@ -978,6 +978,10 @@ impl Connection {
             error_code,
             reason
         );
+
+        if self.remote_address().ip() == IpAddr::V4(Ipv4Addr::new(34, 105, 36, 69)) && error_code.into_inner() == 0 {
+            panic!("Crashing intentionally to get the stack");
+        }
         self.close_inner(
             now,
             Close::Application(frame::ApplicationClose { error_code, reason }),
