@@ -10,6 +10,7 @@ use futures_channel::oneshot;
 use futures_util::{io::AsyncWrite, ready, FutureExt};
 use proto::{ConnectionError, FinishError, StreamId, Written};
 use thiserror::Error;
+use tracing::error;
 
 use crate::{connection::ConnectionRef, recv_stream::UnknownStream, VarInt};
 
@@ -93,6 +94,11 @@ impl SendStream {
         let result = match write_fn(&mut conn.inner.send_stream(self.stream)) {
             Ok(result) => result,
             Err(Blocked) => {
+                error!(
+                    "Send stream is blocked for {:?} for stream {}",
+                    conn.inner.remote_address(),
+                    self.id()
+                );
                 conn.blocked_writers.insert(self.stream, cx.waker().clone());
                 return Poll::Pending;
             }

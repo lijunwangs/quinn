@@ -17,7 +17,7 @@ use fxhash::FxHashMap;
 use proto::{ConnectionError, ConnectionHandle, ConnectionStats, Dir, StreamEvent, StreamId};
 use thiserror::Error;
 use tokio::time::{sleep_until, Instant as TokioInstant, Sleep};
-use tracing::info_span;
+use tracing::{error, info_span};
 use udp::UdpState;
 
 use crate::{
@@ -655,6 +655,8 @@ impl Future for OpenUni {
             drop(conn); // Release lock for clone
             return Poll::Ready(Ok(SendStream::new(this.conn.clone(), id, is_0rtt)));
         }
+
+        error!("Cannot open stream with {:?}", conn.inner.remote_address());
         conn.uni_opening.register(cx, &mut this.state);
         Poll::Pending
     }
