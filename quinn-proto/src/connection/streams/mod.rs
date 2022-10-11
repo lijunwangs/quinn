@@ -5,7 +5,7 @@ use std::{
 
 use bytes::Bytes;
 use thiserror::Error;
-use tracing::trace;
+use tracing::{error, trace};
 
 use super::spaces::{Retransmits, ThinRetransmits};
 use crate::{frame, Dir, StreamId, VarInt};
@@ -43,6 +43,10 @@ impl<'a> Streams<'a> {
 
         // TODO: Queue STREAM_ID_BLOCKED if this fails
         if self.state.next[dir as usize] >= self.state.max[dir as usize] {
+            error!(
+                "Maximum number streams opened, blocked, current: {} max {} {:p}",
+                self.state.next[dir as usize], self.state.max[dir as usize], self
+            );
             return None;
         }
 
