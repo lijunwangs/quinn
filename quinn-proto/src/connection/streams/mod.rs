@@ -45,7 +45,7 @@ impl<'a> Streams<'a> {
         if self.state.next[dir as usize] >= self.state.max[dir as usize] {
             error!(
                 "Maximum number streams opened, blocked, current: {} max {} {:p}",
-                self.state.next[dir as usize], self.state.max[dir as usize], self
+                self.state.next[dir as usize], self.state.max[dir as usize], self.state
             );
             return None;
         }
