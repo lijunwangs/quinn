@@ -924,7 +924,7 @@ impl Connection {
                     self.kill(ConnectionError::TimedOut);
                 }
                 Timer::KeepAlive => {
-                    debug!("sending keep-alive to {:?}", self.remote_address());
+                    debug!("sending keep-alive to {:?} {:p}", self.remote_address(), self);
                     self.ping();
                 }
                 Timer::LossDetection => {
@@ -2911,7 +2911,7 @@ impl Connection {
     }
 
     fn close_common(&mut self) {
-        debug!("connection closed to {:?}", self.remote_address());
+        debug!("connection closed to {:?} {:p}", self.remote_address(), self);
         for &timer in &Timer::VALUES {
             self.timers.stop(timer);
         }
