@@ -2908,7 +2908,7 @@ impl Connection {
     }
 
     fn close_common(&mut self) {
-        trace!("connection closed");
+        debug!("connection closed to {:?}", self.remote_address());
         for &timer in &Timer::VALUES {
             self.timers.stop(timer);
         }
