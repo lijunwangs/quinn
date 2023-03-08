@@ -1593,6 +1593,7 @@ impl Connection {
             return;
         }
         let dt = cmp::max(timeout, 3 * self.pto(space));
+        debug!("zzzzzzz7 reset idle timeout at connection {:p} remote address {:?}, side {:?} exp time: {:?}", self, self.remote_address(), self.side(), now+dt);
         self.timers.set(Timer::Idle, now + dt);
     }
 
@@ -2010,7 +2011,7 @@ impl Connection {
                 self,
                 self.side(),
                 conn_err
-            );            
+            );
             self.error = Some(conn_err.clone());
             self.state = match conn_err {
                 ConnectionError::ApplicationClosed(reason) => State::closed(reason),
