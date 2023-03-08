@@ -2004,6 +2004,13 @@ impl Connection {
 
         // State transitions for error cases
         if let Err(conn_err) = result {
+            debug!(
+                "zzzzzzz5 Closing connection to {:?} at {:p} side {:?} reason: {:?}",
+                self.remote_address(),
+                self,
+                self.side(),
+                conn_err
+            );            
             self.error = Some(conn_err.clone());
             self.state = match conn_err {
                 ConnectionError::ApplicationClosed(reason) => State::closed(reason),
