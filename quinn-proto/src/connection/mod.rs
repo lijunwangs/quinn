@@ -3205,11 +3205,13 @@ impl Connection {
     fn kill(&mut self, reason: ConnectionError) {
         self.close_common();
         debug!(
-            "zzzzzzz3 kill connection to {:?} at {:p} side {:?} reason: {:?}",
+            "zzzzzzz3 kill connection to {:?} at {:p} side {:?} reason: {:?} idle timeout: {:?} connection {:?}",
             self.remote_address(),
             self,
             self.side(),
-            reason
+            reason,
+            self.idle_timeout,
+            self,
         );
         self.error = Some(reason);
         self.state = State::Drained;
