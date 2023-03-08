@@ -355,7 +355,10 @@ impl Connection {
         }
 
         if let Some(err) = self.error.take() {
-            debug!("Connection error {:?} for {:}", err, self.remote_address());
+            debug!("Connection error {:?} for {:?} {:p}", err, self.remote_address(), self);
+            if matches!(err, ConnectionError::TimedOut) {
+                panic!("Why do we have the timeout???!");
+            }
             return Some(Event::ConnectionLost { reason: err });
         }
 
@@ -925,7 +928,7 @@ impl Connection {
                     self.kill(ConnectionError::TimedOut);
                 }
                 Timer::KeepAlive => {
-                    debug!("sending keep-alive to {:?} {:p}", self.remote_address(), self);
+                    debug!("sending keep-alive to {:?} at {:p}", self.remote_address(), self);
                     self.ping();
                 }
                 Timer::LossDetection => {
