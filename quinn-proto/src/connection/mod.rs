@@ -355,8 +355,8 @@ impl Connection {
         }
 
         if let Some(err) = self.error.take() {
-            debug!("Connection error {:?} for {:?} {:p}", err, self.remote_address(), self);
-            if matches!(err, ConnectionError::TimedOut) {
+            debug!("Connection error {:?} for {:?} {:p} side {:?}", err, self.remote_address(), self, self.side());
+            if matches!(err, ConnectionError::TimedOut) && self.side() == Side::Client {
                 panic!("Why do we have the timeout???!");
             }
             return Some(Event::ConnectionLost { reason: err });
@@ -2915,7 +2915,7 @@ impl Connection {
     }
 
     fn close_common(&mut self) {
-        debug!("connection closed to {:?} {:p}", self.remote_address(), self);
+        debug!("connection closed to {:?} {:p} side: {:?}", self.remote_address(), self, self.side());
         for &timer in &Timer::VALUES {
             self.timers.stop(timer);
         }
