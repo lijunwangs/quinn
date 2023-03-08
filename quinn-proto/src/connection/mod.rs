@@ -355,6 +355,7 @@ impl Connection {
         }
 
         if let Some(err) = self.error.take() {
+            debug!("Connection error {:?} for {:}", err, self.remote_address());
             return Some(Event::ConnectionLost { reason: err });
         }
 
