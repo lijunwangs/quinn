@@ -13,6 +13,7 @@ use frame::StreamMetaVec;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use thiserror::Error;
 use tracing::{debug, error, trace, trace_span, warn};
+use backtrace::Backtrace;
 
 use crate::{
     cid_generator::ConnectionIdGenerator,
@@ -1593,7 +1594,7 @@ impl Connection {
             return;
         }
         let dt = cmp::max(timeout, 3 * self.pto(space));
-        debug!("zzzzzzz7 reset idle timeout at connection {:p} remote address {:?}, side {:?} exp time: {:?}", self, self.remote_address(), self.side(), now+dt);
+        debug!("zzzzzzz7 reset idle timeout at connection {:p} remote address {:?}, side {:?} exp time: {:?} backtrace\n{:?}", self, self.remote_address(), self.side(), now+dt, Backtrace::new());
         self.timers.set(Timer::Idle, now + dt);
     }
 
