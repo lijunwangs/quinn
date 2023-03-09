@@ -2759,6 +2759,9 @@ impl Connection {
         max_size: usize,
     ) -> SentFrames {
         let mut sent = SentFrames::default();
+        let addr = self.remote_address();
+        let me: *const u64 = self as *const Connection as *const u64;
+        let side = self.side();
         let space = &mut self.spaces[space_id];
         let is_0rtt = space_id == SpaceId::Data && space.crypto.is_none();
 
@@ -2773,7 +2776,7 @@ impl Connection {
 
         // PING
         if mem::replace(&mut space.ping_pending, false) {
-            trace!("PING");
+            debug!("zzzzzzzzz8 PING {:?} at {:p} side {:?}", addr, me, side);
             buf.write(frame::Type::PING);
             sent.non_retransmits = true;
             self.stats.frame_tx.ping += 1;
