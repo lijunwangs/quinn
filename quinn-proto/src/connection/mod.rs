@@ -789,7 +789,7 @@ impl Connection {
             return None;
         }
 
-        trace!("sending {} bytes in {} datagrams", buf.len(), num_datagrams);
+        trace!("sending {} bytes in {} datagrams at {:p} side {:?} remote: {:?}", buf.len(), num_datagrams, self, self.side(), self.remote_address());
         self.path.total_sent = self.path.total_sent.saturating_add(buf.len() as u64);
 
         self.stats.udp_tx.datagrams += num_datagrams as u64;
@@ -2407,7 +2407,7 @@ impl Connection {
                     trace!(len = f.data.len(), "got datagram frame");
                 }
                 f => {
-                    trace!("got frame {:?}", f);
+                    trace!("got frame {:?} at {:p} side {:?}, remote {:?}", f, self, self.side(), self.remote_address());
                 }
             }
 
