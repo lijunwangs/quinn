@@ -10,7 +10,7 @@ use bytes::Bytes;
 use hex_literal::hex;
 use rand::RngCore;
 use ring::hmac;
-use rustls::internal::msgs::enums::AlertDescription;
+use rustls::{internal::msgs::enums::AlertDescription, client};
 use tracing::info;
 
 use super::*;
@@ -1305,6 +1305,39 @@ fn keep_alive() {
         }
         assert!(!pair.client_conn_mut(client_ch).is_closed());
         assert!(!pair.server_conn_mut(server_ch).is_closed());
+    }
+}
+
+
+
+#[test]
+fn keep_alive2() {
+    let _guard = subscribe();
+    const IDLE_TIMEOUT: u64 = 10;
+    let server = ServerConfig {
+        transport: Arc::new(TransportConfig {
+            keep_alive_interval: None, // Some(Duration::from_millis(IDLE_TIMEOUT / 2)),
+            max_idle_timeout: Some(VarInt(IDLE_TIMEOUT)),
+            ..TransportConfig::default()
+        }),
+        ..server_config()
+    };
+    let mut pair = Pair::new(Default::default(), server);
+    let mut client_config = client_config();
+    let mut transport = TransportConfig::default();
+    transport.keep_alive_interval(Some(Duration::from_millis(IDLE_TIMEOUT / 2)));
+    client_config.transport_config(Arc::new(transport));
+    let client_ch = pair.begin_connect(client_config);
+
+    // Run a good while longer than the idle timeout
+    let end = pair.time + Duration::from_millis(20 * IDLE_TIMEOUT);
+    while pair.time < end {
+        if !pair.step() {
+            if let Some(time) = min_opt(pair.client.next_wakeup(), pair.server.next_wakeup()) {
+                pair.time = time;
+            }
+        }
+        assert!(!pair.client_conn_mut(client_ch).is_closed());
     }
 }
 

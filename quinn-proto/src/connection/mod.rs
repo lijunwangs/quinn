@@ -2763,6 +2763,7 @@ impl Connection {
         let addr = self.remote_address();
         let me: *const u64 = self as *const Connection as *const u64;
         let side = self.side();
+        let permit_idle_reset = self.permit_idle_reset;
         let space = &mut self.spaces[space_id];
         let is_0rtt = space_id == SpaceId::Data && space.crypto.is_none();
 
@@ -2777,7 +2778,7 @@ impl Connection {
 
         // PING
         if mem::replace(&mut space.ping_pending, false) {
-            debug!("zzzzzzzzz8 PING {:?} at {:p} side {:?}", addr, me, side);
+            debug!("zzzzzzzzz8 PING {:?} at {:p} side {:?} permit_idle_reset: {}", addr, me, side, permit_idle_reset);
             buf.write(frame::Type::PING);
             sent.non_retransmits = true;
             self.stats.frame_tx.ping += 1;
