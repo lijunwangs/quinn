@@ -1905,11 +1905,12 @@ impl Connection {
     ) {
         if let Some(ref packet) = packet {
             trace!(
-                "got {:?} packet ({} bytes) from {} using id {}",
+                "got {:?} packet ({} bytes) from {} using id {} side {:?}",
                 packet.header.space(),
                 packet.payload.len() + packet.header_data.len(),
                 remote,
                 packet.header.dst_cid(),
+                self.side(),
             );
         }
 
