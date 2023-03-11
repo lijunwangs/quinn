@@ -27,8 +27,6 @@ use crate::{
     EndpointEvent, VarInt, IO_LOOP_BOUND, RECV_TIME_BOUND, SEND_TIME_BOUND,
 };
 
-use tracing::{debug, trace, warn};
-
 /// A QUIC endpoint.
 ///
 /// An endpoint corresponds to a single UDP socket, may host many connections, and may act as both
@@ -193,7 +191,7 @@ impl Endpoint {
         };
         let (ch, conn) = endpoint.inner.connect(config, addr, server_name)?;
 
-        debug!("Created connection to {:?} side {:?} endpoint: {:?}", conn.remote_address(), conn.side(), self.local_addr());
+        tracing::error!("Created connection to {:?} side {:?} endpoint: {:?}", conn.remote_address(), conn.side(), self.local_addr());
         let udp_state = endpoint.udp_state.clone();
         Ok(endpoint
             .connections
