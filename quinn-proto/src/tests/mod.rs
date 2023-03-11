@@ -10,7 +10,7 @@ use bytes::Bytes;
 use hex_literal::hex;
 use rand::RngCore;
 use ring::hmac;
-use rustls::{internal::msgs::enums::AlertDescription, client};
+use rustls::{client, internal::msgs::enums::AlertDescription};
 use tracing::info;
 
 use super::*;
@@ -1307,8 +1307,6 @@ fn keep_alive() {
         assert!(!pair.server_conn_mut(server_ch).is_closed());
     }
 }
-
-
 
 #[test]
 fn keep_alive2() {

@@ -8,12 +8,12 @@ use std::{
     time::{Duration, Instant},
 };
 
+use backtrace::Backtrace;
 use bytes::{Bytes, BytesMut};
 use frame::StreamMetaVec;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use thiserror::Error;
 use tracing::{debug, error, trace, trace_span, warn};
-use backtrace::Backtrace;
 
 use crate::{
     cid_generator::ConnectionIdGenerator,
@@ -789,7 +789,14 @@ impl Connection {
             return None;
         }
 
-        trace!("sending {} bytes in {} datagrams at {:p} side {:?} remote: {:?}", buf.len(), num_datagrams, self, self.side(), self.remote_address());
+        trace!(
+            "sending {} bytes in {} datagrams at {:p} side {:?} remote: {:?}",
+            buf.len(),
+            num_datagrams,
+            self,
+            self.side(),
+            self.remote_address()
+        );
         self.path.total_sent = self.path.total_sent.saturating_add(buf.len() as u64);
 
         self.stats.udp_tx.datagrams += num_datagrams as u64;
@@ -1555,6 +1562,13 @@ impl Connection {
         self.total_authed_packets += 1;
         self.reset_keep_alive(now);
         self.reset_idle_timeout(now, space_id);
+        debug!(
+            "Turing permit_idle_reset to true from {} at connection {:p}, side {:?}, remote {:?}",
+            self.permit_idle_reset,
+            self,
+            self.side(),
+            self.remote_address()
+        );
         self.permit_idle_reset = true;
         self.receiving_ecn |= ecn.is_some();
         if let Some(x) = ecn {
@@ -2407,7 +2421,13 @@ impl Connection {
                     trace!(len = f.data.len(), "got datagram frame");
                 }
                 f => {
-                    trace!("got frame {:?} at {:p} side {:?}, remote {:?}", f, self, self.side(), self.remote_address());
+                    trace!(
+                        "got frame {:?} at {:p} side {:?}, remote {:?}",
+                        f,
+                        self,
+                        self.side(),
+                        self.remote_address()
+                    );
                 }
             }
 
@@ -2779,7 +2799,10 @@ impl Connection {
 
         // PING
         if mem::replace(&mut space.ping_pending, false) {
-            debug!("zzzzzzzzz8 PING {:?} at {:p} side {:?} permit_idle_reset: {}", addr, me, side, permit_idle_reset);
+            debug!(
+                "zzzzzzzzz8 PING {:?} at {:p} side {:?} permit_idle_reset: {}",
+                addr, me, side, permit_idle_reset
+            );
             buf.write(frame::Type::PING);
             sent.non_retransmits = true;
             self.stats.frame_tx.ping += 1;

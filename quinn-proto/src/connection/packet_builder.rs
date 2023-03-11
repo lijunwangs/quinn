@@ -202,6 +202,7 @@ impl PacketBuilder {
                 if conn.permit_idle_reset {
                     conn.reset_idle_timeout(now, space_id);
                 }
+                trace!("Turing permit_idle_reset to false from {} at connection {:p}, side {:?}, remote {:?}", conn.permit_idle_reset, conn, conn.side(), conn.remote_address());
                 conn.permit_idle_reset = false;
             }
             conn.set_loss_detection_timer(now);
