@@ -191,7 +191,7 @@ impl Endpoint {
         };
         let (ch, conn) = endpoint.inner.connect(config, addr, server_name)?;
 
-        tracing::error!("Created connection to {:?} side {:?} endpoint: {:?}", conn.remote_address(), conn.side(), self.local_addr());
+        //tracing::error!("Created connection to {:?} side {:?} endpoint: {:?}", conn.remote_address(), conn.side(), self.local_addr());
         let udp_state = endpoint.udp_state.clone();
         Ok(endpoint
             .connections
