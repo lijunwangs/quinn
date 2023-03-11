@@ -18,6 +18,7 @@ use thiserror::Error;
 use tokio::sync::{futures::Notified, mpsc, oneshot, Notify};
 use tracing::debug_span;
 use udp::UdpState;
+use tracing::{debug, error, trace, trace_span, warn};
 
 use crate::{
     mutex::Mutex,
@@ -865,6 +866,7 @@ impl State {
                 Some(s) => (t.contents.len() + s - 1) / s, // round up
             };
             // If the endpoint driver is gone, noop.
+            debug!("Sending event {:?}", t);
             let _ = self
                 .endpoint_events
                 .send((self.handle, EndpointEvent::Transmit(t)));
