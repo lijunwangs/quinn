@@ -47,6 +47,7 @@ impl UdpSocketState {
         state: &UdpState,
         transmits: &[Transmit],
     ) -> Result<usize, io::Error> {
+        tracing::trace!("zzzzzz 9 Sending to {:?}", socket.0);
         send(state, socket.0, &mut self.last_send_error, transmits)
     }
 
