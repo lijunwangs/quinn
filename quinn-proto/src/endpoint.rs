@@ -648,6 +648,7 @@ impl Endpoint {
             version,
         );
 
+        debug!("Created connection to {:?} {:?} side: {:?}, endpoint: {:?} {:p}", conn.remote_address(), conn, conn.side(), self, self);
         let id = self.connections.insert(ConnectionMeta {
             init_cid,
             cids_issued: 0,
