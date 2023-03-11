@@ -18,7 +18,7 @@ use thiserror::Error;
 use tokio::sync::{futures::Notified, mpsc, oneshot, Notify};
 use tracing::debug_span;
 use udp::UdpState;
-use tracing::{debug, error, trace, trace_span, warn};
+use tracing::{debug, error};
 
 use crate::{
     mutex::Mutex,
