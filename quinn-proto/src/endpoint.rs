@@ -649,7 +649,7 @@ impl Endpoint {
         );
 
         let conn_addr = &conn as *const Connection;
-        debug!("Created connection to {:?} {:p} side: {:?}, endpoint: {:p}", conn.remote_address(), conn_addr, conn.side(), self);
+        debug!("Created connection to {:?} address {:p} side: {:?}, endpoint: {:p}", conn.remote_address(), conn_addr, conn.side(), self);
         let id = self.connections.insert(ConnectionMeta {
             init_cid,
             cids_issued: 0,
