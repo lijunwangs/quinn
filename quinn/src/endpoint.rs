@@ -113,13 +113,16 @@ impl Endpoint {
         socket: Box<dyn AsyncUdpSocket>,
         runtime: Arc<dyn Runtime>,
     ) -> io::Result<Self> {
+        let inner = proto::Endpoint::new(Arc::new(config), server_config.map(Arc::new));
+        let inner_addr = &inner as *const proto::Endpoint;
         let addr = socket.local_addr()?;
         let rc = EndpointRef::new(
             socket,
-            proto::Endpoint::new(Arc::new(config), server_config.map(Arc::new)),
+            inner,
             addr.is_ipv6(),
             runtime.clone(),
         );
+        tracing::trace!("Created internal endpoint: {:p} local socket {:?}", inner_addr, addr);
         let driver = EndpointDriver(rc.clone());
         runtime.spawn(Box::pin(async {
             if let Err(e) = driver.await {
