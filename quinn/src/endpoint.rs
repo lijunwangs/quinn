@@ -193,7 +193,7 @@ impl Endpoint {
         };
         let (ch, conn) = endpoint.inner.connect(config, addr, server_name)?;
 
-        debug!("Created connection {:p} to {:?} side {:?} endpoint: {:?}", &conn, conn.remote_address(), conn.side(), self.local_addr());
+        //debug!("Created connection {:p} to {:?} side {:?} endpoint: {:?}", &conn, conn.remote_address(), conn.side(), self.local_addr());
         let udp_state = endpoint.udp_state.clone();
         Ok(endpoint
             .connections
