@@ -48,7 +48,10 @@ impl UdpSocketState {
         state: &UdpState,
         transmits: &[Transmit],
     ) -> Result<usize, io::Error> {
-        tracing::trace!("zzzzzz9 Sending from {:?} to {:?} len: {}", socket.0.deref().local_addr(), transmits[0].destination, transmits[0].contents.len());
+
+        let local_addr = socket.0.deref().local_addr().ok().unwrap().as_socket_ipv4().unwrap();
+
+        tracing::trace!("zzzzzz9 Sending from {:?} to {:?} len: {}", local_addr, transmits[0].destination, transmits[0].contents.len());
         send(state, socket.0, &mut self.last_send_error, transmits)
     }
 
