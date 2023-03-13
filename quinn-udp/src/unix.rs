@@ -14,6 +14,7 @@ use proto::{EcnCodepoint, Transmit};
 use socket2::SockRef;
 
 use super::{cmsg, log_sendmsg_error, RecvMeta, UdpSockRef, UdpState, IO_ERROR_LOG_INTERVAL};
+use std::ops::Deref;
 
 #[cfg(target_os = "freebsd")]
 type IpTosTy = libc::c_uchar;
@@ -47,7 +48,7 @@ impl UdpSocketState {
         state: &UdpState,
         transmits: &[Transmit],
     ) -> Result<usize, io::Error> {
-        tracing::trace!("zzzzzz9 Sending from {:?} to {:?} len: {}", socket.0, transmits[0].destination, transmits[0].contents.len());
+        tracing::trace!("zzzzzz9 Sending from {:?} to {:?} len: {}", socket.0.deref().local_addr(), transmits[0].destination, transmits[0].contents.len());
         send(state, socket.0, &mut self.last_send_error, transmits)
     }
 
