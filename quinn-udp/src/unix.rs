@@ -63,7 +63,10 @@ impl UdpSocketState {
         bufs: &mut [IoSliceMut<'_>],
         meta: &mut [RecvMeta],
     ) -> io::Result<usize> {
-        recv(socket.0, bufs, meta)
+        let local_addr = socket.0.deref().local_addr().ok().unwrap().as_socket_ipv4().unwrap();
+        let result = recv(socket.0, bufs, meta);
+        tracing::trace!("zzzzzz11 received data at {:?} result {:?}", local_addr, result);
+        result
     }
 }
 
