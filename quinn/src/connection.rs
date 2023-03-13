@@ -17,8 +17,8 @@ use rustc_hash::FxHashMap;
 use thiserror::Error;
 use tokio::sync::{futures::Notified, mpsc, oneshot, Notify};
 use tracing::debug_span;
-use udp::UdpState;
 use tracing::{debug, error};
+use udp::UdpState;
 
 use crate::{
     mutex::Mutex,

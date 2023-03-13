@@ -1027,7 +1027,11 @@ impl Connection {
     ///
     /// Causes an ACK-eliciting packet to be transmitted.
     pub fn ping(&mut self) {
-        debug!("zzzzzzzz10 To Send PING to {:?} side: {:?}", self.remote_address(), self.side());
+        debug!(
+            "zzzzzzzz10 To Send PING to {:?} side: {:?}",
+            self.remote_address(),
+            self.side()
+        );
         self.spaces[self.highest_space].ping_pending = true;
     }
 

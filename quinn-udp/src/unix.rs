@@ -48,12 +48,29 @@ impl UdpSocketState {
         state: &UdpState,
         transmits: &[Transmit],
     ) -> Result<usize, io::Error> {
+        let local_addr = socket
+            .0
+            .deref()
+            .local_addr()
+            .ok()
+            .unwrap()
+            .as_socket_ipv4()
+            .unwrap();
 
-        let local_addr = socket.0.deref().local_addr().ok().unwrap().as_socket_ipv4().unwrap();
-
-        tracing::trace!("zzzzzz9 Sending from {:?} to {:?} len: {}", local_addr, transmits[0].destination, transmits[0].contents.len());
+        tracing::trace!(
+            "zzzzzz9 Sending from {:?} to {:?} len: {}",
+            local_addr,
+            transmits[0].destination,
+            transmits[0].contents.len()
+        );
         let result = send(state, socket.0, &mut self.last_send_error, transmits);
-        tracing::trace!("zzzzzz9 Sending from {:?} to {:?} len: {} result {:?}", local_addr, transmits[0].destination, transmits[0].contents.len(), result);
+        tracing::trace!(
+            "zzzzzz9 Sending from {:?} to {:?} len: {} result {:?}",
+            local_addr,
+            transmits[0].destination,
+            transmits[0].contents.len(),
+            result
+        );
         result
     }
 
@@ -63,9 +80,20 @@ impl UdpSocketState {
         bufs: &mut [IoSliceMut<'_>],
         meta: &mut [RecvMeta],
     ) -> io::Result<usize> {
-        let local_addr = socket.0.deref().local_addr().ok().unwrap().as_socket_ipv4().unwrap();
+        let local_addr = socket
+            .0
+            .deref()
+            .local_addr()
+            .ok()
+            .unwrap()
+            .as_socket_ipv4()
+            .unwrap();
         let result = recv(socket.0, bufs, meta);
-        tracing::trace!("zzzzzz11 received data at {:?} result {:?}", local_addr, result);
+        tracing::trace!(
+            "zzzzzz11 received data at {:?} result {:?}",
+            local_addr,
+            result
+        );
         result
     }
 }

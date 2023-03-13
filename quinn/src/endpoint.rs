@@ -116,13 +116,12 @@ impl Endpoint {
         let inner = proto::Endpoint::new(Arc::new(config), server_config.map(Arc::new));
         let inner_addr = &inner as *const proto::Endpoint;
         let addr = socket.local_addr()?;
-        let rc = EndpointRef::new(
-            socket,
-            inner,
-            addr.is_ipv6(),
-            runtime.clone(),
+        let rc = EndpointRef::new(socket, inner, addr.is_ipv6(), runtime.clone());
+        tracing::trace!(
+            "Created internal endpoint: {:p} local socket {:?}",
+            inner_addr,
+            addr
         );
-        tracing::trace!("Created internal endpoint: {:p} local socket {:?}", inner_addr, addr);
         let driver = EndpointDriver(rc.clone());
         runtime.spawn(Box::pin(async {
             if let Err(e) = driver.await {
@@ -376,6 +375,7 @@ pub(crate) struct Shared {
 
 impl State {
     fn drive_recv<'a>(&'a mut self, cx: &mut Context, now: Instant) -> Result<bool, io::Error> {
+        tracing::debug!("zzzzzzzz12 drive_recv for {:?}", self.socket.local_addr());
         self.recv_limiter.start_cycle();
         let mut metas = [RecvMeta::default(); BATCH_SIZE];
         let mut iovs = MaybeUninit::<[IoSliceMut<'a>; BATCH_SIZE]>::uninit();
@@ -425,6 +425,10 @@ impl State {
                     }
                 }
                 Poll::Pending => {
+                    tracing::debug!(
+                        "zzzzzzzz12 drive_recv for {:?} break",
+                        self.socket.local_addr()
+                    );
                     break;
                 }
                 // Ignore ECONNRESET as it's undefined in QUIC and may be injected by an
@@ -433,15 +437,27 @@ impl State {
                     continue;
                 }
                 Poll::Ready(Err(e)) => {
+                    tracing::debug!(
+                        "zzzzzzzz12 drive_recv for {:?} error break",
+                        self.socket.local_addr()
+                    );
                     return Err(e);
                 }
             }
             if !self.recv_limiter.allow_work() {
+                tracing::debug!(
+                    "zzzzzzzz12 drive_recv for {:?} finish cycle",
+                    self.socket.local_addr()
+                );
                 self.recv_limiter.finish_cycle();
                 return Ok(true);
             }
         }
 
+        tracing::debug!(
+            "zzzzzzzz12 drive_recv for {:?} done",
+            self.socket.local_addr()
+        );
         self.recv_limiter.finish_cycle();
         Ok(false)
     }

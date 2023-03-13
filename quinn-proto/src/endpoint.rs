@@ -650,7 +650,13 @@ impl Endpoint {
 
         let conn_addr = &conn as *const Connection;
         let endpoint_addr = self as *const Endpoint;
-        debug!("Created connection to {:?} address {:p} side: {:?}, endpoint: {:p}", conn.remote_address(), conn_addr, conn.side(), endpoint_addr);
+        debug!(
+            "Created connection to {:?} address {:p} side: {:?}, endpoint: {:p}",
+            conn.remote_address(),
+            conn_addr,
+            conn.side(),
+            endpoint_addr
+        );
         let id = self.connections.insert(ConnectionMeta {
             init_cid,
             cids_issued: 0,
