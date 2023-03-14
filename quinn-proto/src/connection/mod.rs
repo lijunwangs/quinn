@@ -1618,7 +1618,8 @@ impl Connection {
             return;
         }
         let dt = cmp::max(timeout, 3 * self.pto(space));
-        debug!("zzzzzzz7 reset idle timeout at connection {:p} remote address {:?}, side {:?} exp time: {:?} backtrace\n{:?}", self, self.remote_address(), self.side(), now+dt, Backtrace::new());
+        //debug!("zzzzzzz7 reset idle timeout at connection {:p} remote address {:?}, side {:?} exp time: {:?} backtrace\n{:?}", self, self.remote_address(), self.side(), now+dt, Backtrace::new());
+        debug!("zzzzzzz7 reset idle timeout at connection {:p} remote address {:?}, side {:?} exp time: {:?}", self, self.remote_address(), self.side(), now+dt);
         self.timers.set(Timer::Idle, now + dt);
     }
 
