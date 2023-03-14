@@ -300,6 +300,8 @@ impl Future for EndpointDriver {
 
     #[allow(unused_mut)] // MSRV
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context) -> Poll<Self::Output> {
+        tracing::debug!("zzzzzzzz13 polling {:p} acquiring lock...", self);
+
         let mut endpoint = self.0.state.lock().unwrap();
         let local_addr = endpoint.socket.local_addr();
         if endpoint.driver.is_none() {
