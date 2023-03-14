@@ -301,10 +301,12 @@ impl Future for EndpointDriver {
     #[allow(unused_mut)] // MSRV
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context) -> Poll<Self::Output> {
         let mut endpoint = self.0.state.lock().unwrap();
+        let local_addr = endpoint.socket.local_addr();
         if endpoint.driver.is_none() {
             endpoint.driver = Some(cx.waker().clone());
         }
 
+        tracing::debug!("zzzzzzzz13 polling {:p} at {:?}", self, local_addr);
         let now = Instant::now();
         let mut keep_going = false;
         keep_going |= endpoint.drive_recv(cx, now)?;
@@ -316,7 +318,7 @@ impl Future for EndpointDriver {
         }
 
         if endpoint.ref_count == 0 && endpoint.connections.is_empty() {
-            tracing::debug!("zzzzzzzz13 finished future at {:?}", self.0.state.lock().unwrap().socket.local_addr());
+            tracing::debug!("zzzzzzzz13 finished future {:p} at {:?}", self, local_addr);
             Poll::Ready(Ok(()))
         } else {
             drop(endpoint);
@@ -324,10 +326,14 @@ impl Future for EndpointDriver {
             // `wake_by_ref()` is called outside the lock to minimize
             // lock contention on a multithreaded runtime.
             if keep_going {
-                tracing::debug!("zzzzzzzz13 keep_going at {:?}", self.0.state.lock().unwrap().socket.local_addr());
+                tracing::debug!("zzzzzzzz13 keep_going at {:p} {:?}", self, local_addr);
                 cx.waker().wake_by_ref();
-            } {
-                tracing::debug!("zzzzzzzz13 no longer keep_going at {:?}", self.0.state.lock().unwrap().socket.local_addr());
+            } else {
+                tracing::debug!(
+                    "zzzzzzzz13 no longer keep_going at {:p} {:?}",
+                    self,
+                    local_addr
+                );
             }
             Poll::Pending
         }
