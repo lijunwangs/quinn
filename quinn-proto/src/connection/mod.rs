@@ -364,7 +364,12 @@ impl Connection {
                 self.side()
             );
             if matches!(err, ConnectionError::TimedOut) && self.side() == Side::Client {
-                panic!("Why do we have the timeout???!");
+                debug!(
+                    "Why do we have the timeout (TimedOut) ???! remote {:?} {:p} side {:?}",
+                    self.remote_address(),
+                    self,
+                    self.side()
+                );
             }
             return Some(Event::ConnectionLost { reason: err });
         }
