@@ -345,6 +345,11 @@ impl Future for EndpointDriver {
 impl Drop for EndpointDriver {
     fn drop(&mut self) {
         let mut endpoint = self.0.state.lock().unwrap();
+        tracing::debug!(
+            "zzzzzzzz13 Dropping ConnectionDriver {:p} at {:?}",
+            self,
+            endpoint.socket.local_addr()
+        );
         endpoint.driver_lost = true;
         self.0.shared.incoming.notify_waiters();
         // Drop all outgoing channels, signaling the termination of the endpoint to the associated
