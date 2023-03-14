@@ -316,6 +316,7 @@ impl Future for EndpointDriver {
         }
 
         if endpoint.ref_count == 0 && endpoint.connections.is_empty() {
+            tracing::debug!("zzzzzzzz13 finished future at {:?}", self.0.state.lock().unwrap().socket.local_addr());
             Poll::Ready(Ok(()))
         } else {
             drop(endpoint);
@@ -323,7 +324,10 @@ impl Future for EndpointDriver {
             // `wake_by_ref()` is called outside the lock to minimize
             // lock contention on a multithreaded runtime.
             if keep_going {
+                tracing::debug!("zzzzzzzz13 keep_going at {:?}", self.0.state.lock().unwrap().socket.local_addr());
                 cx.waker().wake_by_ref();
+            } {
+                tracing::debug!("zzzzzzzz13 no longer keep_going at {:?}", self.0.state.lock().unwrap().socket.local_addr());
             }
             Poll::Pending
         }
@@ -426,7 +430,7 @@ impl State {
                 }
                 Poll::Pending => {
                     tracing::debug!(
-                        "zzzzzzzz12 drive_recv for {:?} break",
+                        "zzzzzzzz12 drive_recv for {:?} no data yet, break",
                         self.socket.local_addr()
                     );
                     break;
@@ -446,7 +450,7 @@ impl State {
             }
             if !self.recv_limiter.allow_work() {
                 tracing::debug!(
-                    "zzzzzzzz12 drive_recv for {:?} finish cycle",
+                    "zzzzzzzz12 drive_recv for {:?} recv_limiter does not permit work, finish cycle",
                     self.socket.local_addr()
                 );
                 self.recv_limiter.finish_cycle();
