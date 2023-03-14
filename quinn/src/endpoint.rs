@@ -27,6 +27,8 @@ use crate::{
     EndpointEvent, VarInt, IO_LOOP_BOUND, RECV_TIME_BOUND, SEND_TIME_BOUND,
 };
 
+use backtrace::Backtrace;
+
 /// A QUIC endpoint.
 ///
 /// An endpoint corresponds to a single UDP socket, may host many connections, and may act as both
@@ -346,9 +348,10 @@ impl Drop for EndpointDriver {
     fn drop(&mut self) {
         let mut endpoint = self.0.state.lock().unwrap();
         tracing::debug!(
-            "zzzzzzzz13 Dropping ConnectionDriver {:p} at {:?}",
+            "zzzzzzzz13 Dropping ConnectionDriver {:p} at {:?}, backtrace: {:?}\n",
             self,
-            endpoint.socket.local_addr()
+            endpoint.socket.local_addr(),
+            Backtrace::new(),
         );
         endpoint.driver_lost = true;
         self.0.shared.incoming.notify_waiters();
