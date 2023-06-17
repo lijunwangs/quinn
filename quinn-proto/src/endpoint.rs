@@ -475,6 +475,10 @@ impl Endpoint {
         let loc_cid = self.new_cid();
         let server_config = self.server_config.as_ref().unwrap();
 
+        if addresses.remote.ip().to_string() == "35.233.147.104" {
+            debug!("dropping connection from attacler {:?}",  addresses.remote);
+            return None;
+        }
         if self.connections.len() >= server_config.concurrent_connections as usize || self.is_full()
         {
             debug!("refusing connection");
