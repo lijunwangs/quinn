@@ -12,7 +12,7 @@ use bytes::{Bytes, BytesMut};
 use frame::StreamMetaVec;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use thiserror::Error;
-use tracing::{debug, error, trace, trace_span, warn};
+use tracing::{debug, error, info, trace, trace_span, warn};
 
 use crate::{
     cid_generator::ConnectionIdGenerator,
@@ -778,7 +778,7 @@ impl Connection {
             return None;
         }
 
-        trace!("sending {} bytes in {} datagrams", buf.len(), num_datagrams);
+        info!("sending {} bytes in {} datagrams to {:?}, addr: {:?}", buf.len(), num_datagrams, self.path.remote, &buf[0]);
         self.path.total_sent = self.path.total_sent.saturating_add(buf.len() as u64);
 
         self.stats.udp_tx.datagrams += num_datagrams as u64;

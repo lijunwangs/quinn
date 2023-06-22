@@ -27,6 +27,8 @@ use crate::{
     EndpointEvent, VarInt, IO_LOOP_BOUND, RECV_TIME_BOUND, SEND_TIME_BOUND,
 };
 
+use tracing::info;
+
 /// A QUIC endpoint.
 ///
 /// An endpoint corresponds to a single UDP socket, may host many connections, and may act as both
@@ -455,6 +457,8 @@ impl State {
             if self.outgoing.is_empty() {
                 break Ok(false);
             }
+
+            info!("Outgoing size: {}", self.outgoing.len());
 
             if !self.send_limiter.allow_work() {
                 break Ok(true);
