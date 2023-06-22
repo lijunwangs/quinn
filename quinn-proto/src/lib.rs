@@ -38,7 +38,7 @@ mod varint;
 
 pub use varint::{VarInt, VarIntBoundsExceeded};
 
-mod connection;
+pub mod connection;
 pub use crate::connection::{
     BytesSource, Chunk, Chunks, Connection, ConnectionError, ConnectionStats, Datagrams, Event,
     FinishError, ReadError, ReadableError, RecvStream, RttEstimator, SendDatagramError, SendStream,

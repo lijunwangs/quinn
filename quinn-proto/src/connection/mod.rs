@@ -4,7 +4,7 @@ use std::{
     convert::TryFrom,
     fmt, io, mem,
     net::{IpAddr, SocketAddr},
-    sync::Arc,
+    sync::{Arc, atomic::AtomicU64},
     time::{Duration, Instant},
 };
 
@@ -12,7 +12,7 @@ use bytes::{Bytes, BytesMut};
 use frame::StreamMetaVec;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use thiserror::Error;
-use tracing::{debug, error, info, trace, trace_span, warn};
+use tracing::{debug, error, trace, trace_span, warn};
 
 use crate::{
     cid_generator::ConnectionIdGenerator,
@@ -78,6 +78,27 @@ pub use streams::{
 mod timer;
 use crate::congestion::Controller;
 use timer::{Timer, TimerTable};
+use lazy_static::lazy_static;
+
+
+lazy_static! {
+    static ref TRANSMIT_COUNT: AtomicU64 = AtomicU64::default();
+}
+
+/// Increment the transmit count stat
+pub fn increment_transmit_count() {
+    TRANSMIT_COUNT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+}
+
+/// decrement the transmit count stat
+pub fn decrement_transmit_count(count: u64 ) {
+    TRANSMIT_COUNT.fetch_sub(count, std::sync::atomic::Ordering::Relaxed);
+}
+
+/// report the count
+pub fn report_transmit_count() {
+    println!("Transmit count: {}", TRANSMIT_COUNT.load(std::sync::atomic::Ordering::Relaxed));
+}
 
 /// Protocol state and logic for a single QUIC connection
 ///
@@ -778,7 +799,10 @@ impl Connection {
             return None;
         }
 
-        println!("sending {} bytes in {} datagrams to {:?}, addr: {:?}", buf.len(), num_datagrams, self.path.remote, &buf[0]);
+        increment_transmit_count();
+        report_transmit_count();
+
+        trace!("sending {} bytes in {} datagrams to {:?}, addr: {:?}", buf.len(), num_datagrams, self.path.remote, &buf[0]);
         self.path.total_sent = self.path.total_sent.saturating_add(buf.len() as u64);
 
         self.stats.udp_tx.datagrams += num_datagrams as u64;
