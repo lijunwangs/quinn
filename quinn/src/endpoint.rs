@@ -458,7 +458,7 @@ impl State {
                 break Ok(false);
             }
 
-            info!("Outgoing size: {}", self.outgoing.len());
+            println!("Outgoing size: {}", self.outgoing.len());
 
             if !self.send_limiter.allow_work() {
                 break Ok(true);

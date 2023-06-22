@@ -778,7 +778,7 @@ impl Connection {
             return None;
         }
 
-        info!("sending {} bytes in {} datagrams to {:?}, addr: {:?}", buf.len(), num_datagrams, self.path.remote, &buf[0]);
+        println!("sending {} bytes in {} datagrams to {:?}, addr: {:?}", buf.len(), num_datagrams, self.path.remote, &buf[0]);
         self.path.total_sent = self.path.total_sent.saturating_add(buf.len() as u64);
 
         self.stats.udp_tx.datagrams += num_datagrams as u64;
