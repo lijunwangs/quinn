@@ -118,7 +118,7 @@ pub fn decrement_connection_count(count: u64 ) {
 
 /// report the count
 pub fn report_connection_count() {
-    println!("Connection count: {}", TRANSMIT_COUNT.load(std::sync::atomic::Ordering::Relaxed));
+    println!("Connection count: {}", CONNECTION_COUNT.load(std::sync::atomic::Ordering::Relaxed));
 }
 
 /// Protocol state and logic for a single QUIC connection
