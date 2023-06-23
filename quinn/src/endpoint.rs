@@ -469,6 +469,7 @@ impl State {
                 Poll::Ready(Ok(n)) => {
                     self.outgoing.drain(..n);
                     //decrement_transmit_count(n as u64);
+                    println!("Outgoing queue length: {}", self.outgoing.len());
                     // We count transmits instead of `poll_send` calls since the cost
                     // of a `sendmmsg` still linearily increases with number of packets.
                     self.send_limiter.record_work(n);
