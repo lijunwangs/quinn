@@ -456,7 +456,7 @@ impl State {
                 break Ok(false);
             }
 
-            println!("Outgoing size: {}", self.outgoing.len());
+            //println!("Outgoing size: {}", self.outgoing.len());
 
             if !self.send_limiter.allow_work() {
                 break Ok(true);
@@ -468,7 +468,7 @@ impl State {
             {
                 Poll::Ready(Ok(n)) => {
                     self.outgoing.drain(..n);
-                    decrement_transmit_count(n as u64);
+                    //decrement_transmit_count(n as u64);
                     // We count transmits instead of `poll_send` calls since the cost
                     // of a `sendmmsg` still linearily increases with number of packets.
                     self.send_limiter.record_work(n);
