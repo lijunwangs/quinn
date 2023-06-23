@@ -83,6 +83,7 @@ use lazy_static::lazy_static;
 
 lazy_static! {
     static ref TRANSMIT_COUNT: AtomicU64 = AtomicU64::default();
+    static ref CONNECTION_COUNT: AtomicU64 = AtomicU64::default();
 }
 
 /// Increment the transmit count stat
@@ -100,6 +101,24 @@ pub fn decrement_transmit_count(count: u64 ) {
 /// report the count
 pub fn report_transmit_count() {
     println!("Transmit count: {}", TRANSMIT_COUNT.load(std::sync::atomic::Ordering::Relaxed));
+}
+
+
+/// Increment the transmit count stat
+pub fn increment_connection_count() {
+    CONNECTION_COUNT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    report_transmit_count();
+}
+
+/// decrement the transmit count stat
+pub fn decrement_connection_count(count: u64 ) {
+    CONNECTION_COUNT.fetch_sub(count, std::sync::atomic::Ordering::Relaxed);
+    report_transmit_count();
+}
+
+/// report the count
+pub fn report_connection_count() {
+    println!("Connection count: {}", TRANSMIT_COUNT.load(std::sync::atomic::Ordering::Relaxed));
 }
 
 /// Protocol state and logic for a single QUIC connection
@@ -243,6 +262,12 @@ pub struct Connection {
     version: u32,
 }
 
+impl Drop for Connection {
+    fn drop(&mut self) {
+        decrement_connection_count(1);
+    }
+}
+
 impl Connection {
     pub(crate) fn new(
         endpoint_config: Arc<EndpointConfig>,
@@ -347,6 +372,7 @@ impl Connection {
             this.write_crypto();
             this.init_0rtt();
         }
+        increment_connection_count();
         this
     }
 
