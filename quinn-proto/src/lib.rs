@@ -36,6 +36,7 @@ mod tests;
 pub mod transport_parameters;
 mod varint;
 
+use connection::decrement_transmit_count;
 pub use varint::{VarInt, VarIntBoundsExceeded};
 
 pub mod connection;
@@ -297,3 +298,9 @@ const INITIAL_MAX_UDP_PAYLOAD_SIZE: u16 = 1200;
 const TIMER_GRANULARITY: Duration = Duration::from_millis(1);
 /// Maximum number of streams that can be uniquely identified by a stream ID
 const MAX_STREAM_COUNT: u64 = 1 << 60;
+
+impl Drop for Transmit {
+    fn drop(&mut self) {
+        decrement_transmit_count(1);
+    }
+}

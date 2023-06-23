@@ -88,11 +88,13 @@ lazy_static! {
 /// Increment the transmit count stat
 pub fn increment_transmit_count() {
     TRANSMIT_COUNT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    report_transmit_count();
 }
 
 /// decrement the transmit count stat
 pub fn decrement_transmit_count(count: u64 ) {
     TRANSMIT_COUNT.fetch_sub(count, std::sync::atomic::Ordering::Relaxed);
+    report_transmit_count();
 }
 
 /// report the count
@@ -801,7 +803,6 @@ impl Connection {
         }
 
         increment_transmit_count();
-        report_transmit_count();
 
         trace!("sending {} bytes in {} datagrams to {:?}, addr: {:?}", buf.len(), num_datagrams, self.path.remote, &buf[0]);
         self.path.total_sent = self.path.total_sent.saturating_add(buf.len() as u64);
