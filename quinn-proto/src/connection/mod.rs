@@ -477,6 +477,7 @@ impl Connection {
                 self.stats.udp_tx.datagrams += 1;
                 self.stats.udp_tx.transmits += 1;
                 self.stats.udp_tx.bytes += buf.len() as u64;
+                increment_transmit_count();
                 return Some(Transmit {
                     destination,
                     contents: buf,

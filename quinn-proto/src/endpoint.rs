@@ -19,7 +19,7 @@ use crate::{
     cid_generator::{ConnectionIdGenerator, RandomConnectionIdGenerator},
     coding::BufMutExt,
     config::{ClientConfig, EndpointConfig, ServerConfig},
-    connection::{Connection, ConnectionError},
+    connection::{Connection, ConnectionError, increment_transmit_count},
     crypto::{self, Keys, UnsupportedVersion},
     frame,
     packet::{Header, Packet, PacketDecodeError, PacketNumber, PartialDecode},
@@ -184,6 +184,7 @@ impl Endpoint {
                 for &version in &self.config.supported_versions {
                     buf.write(version);
                 }
+                increment_transmit_count();
                 self.transmits.push_back(Transmit {
                     destination: remote,
                     ecn: None,
@@ -346,7 +347,7 @@ impl Endpoint {
         buf.extend_from_slice(&ResetToken::new(&*self.config.reset_key, dst_cid));
 
         debug_assert!(buf.len() < inciting_dgram_len);
-
+        increment_transmit_count();
         self.transmits.push_back(Transmit {
             destination: addresses.remote,
             ecn: None,
@@ -531,7 +532,7 @@ impl Endpoint {
                 buf.put_slice(&token);
                 buf.extend_from_slice(&server_config.crypto.retry_tag(version, &dst_cid, &buf));
                 encode.finish(&mut buf, &*crypto.header.local, None);
-
+                increment_transmit_count();
                 self.transmits.push_back(Transmit {
                     destination: addresses.remote,
                     ecn: None,
@@ -695,6 +696,7 @@ impl Endpoint {
             &*crypto.header.local,
             Some((0, &*crypto.packet.local)),
         );
+        increment_transmit_count();
         self.transmits.push_back(Transmit {
             destination: addresses.remote,
             ecn: None,
