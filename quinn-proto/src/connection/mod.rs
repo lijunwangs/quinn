@@ -84,12 +84,28 @@ use lazy_static::lazy_static;
 lazy_static! {
     static ref TRANSMIT_COUNT: AtomicU64 = AtomicU64::default();
     static ref CONNECTION_COUNT: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_TRANSMIT_CREATE: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_TRANSMIT_SEND: AtomicU64 = AtomicU64::default(); 
+}
+
+
+/// Increment the transmit create stat
+pub fn increment_transmit_create() {
+    TOTAL_TRANSMIT_CREATE.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    println!("Transmit create {}", TOTAL_TRANSMIT_CREATE.load(std::sync::atomic::Ordering::Relaxed));
+}
+
+/// Increment the transmit create stat
+pub fn increment_transmit_send(cnt: u64) {
+    TOTAL_TRANSMIT_SEND.fetch_add(cnt, std::sync::atomic::Ordering::Relaxed);
+    println!("Transmit send {}", TOTAL_TRANSMIT_SEND.load(std::sync::atomic::Ordering::Relaxed));
 }
 
 /// Increment the transmit count stat
 pub fn increment_transmit_count() {
     TRANSMIT_COUNT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     report_transmit_count();
+    increment_transmit_create();
 }
 
 /// decrement the transmit count stat

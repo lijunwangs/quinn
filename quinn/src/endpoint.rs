@@ -16,7 +16,7 @@ use crate::runtime::{default_runtime, AsyncUdpSocket, Runtime};
 use bytes::{Bytes, BytesMut};
 use pin_project_lite::pin_project;
 use proto::{
-    self as proto, ClientConfig, ConnectError, ConnectionHandle, DatagramEvent, ServerConfig,
+    self as proto, ClientConfig, ConnectError, ConnectionHandle, DatagramEvent, ServerConfig, connection::increment_transmit_send,
 };
 use rustc_hash::FxHashMap;
 use tokio::sync::{futures::Notified, mpsc, Notify};
@@ -469,6 +469,7 @@ impl State {
                 Poll::Ready(Ok(n)) => {
                     self.outgoing.drain(..n);
                     //decrement_transmit_count(n as u64);
+                    increment_transmit_send(n as u64);
                     println!("Outgoing queue length: {}", self.outgoing.len());
                     // We count transmits instead of `poll_send` calls since the cost
                     // of a `sendmmsg` still linearily increases with number of packets.
