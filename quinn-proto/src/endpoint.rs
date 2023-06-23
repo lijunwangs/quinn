@@ -85,6 +85,7 @@ impl Endpoint {
     /// Get the next packet to transmit
     #[must_use]
     pub fn poll_transmit(&mut self) -> Option<Transmit> {
+        println!("Transmits queue length {}", self.transmits.len());
         self.transmits.pop_front()
     }
 
