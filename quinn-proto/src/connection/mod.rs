@@ -107,13 +107,13 @@ pub fn report_transmit_count() {
 /// Increment the transmit count stat
 pub fn increment_connection_count() {
     CONNECTION_COUNT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-    report_transmit_count();
+    report_connection_count();
 }
 
 /// decrement the transmit count stat
 pub fn decrement_connection_count(count: u64 ) {
     CONNECTION_COUNT.fetch_sub(count, std::sync::atomic::Ordering::Relaxed);
-    report_transmit_count();
+    report_connection_count();
 }
 
 /// report the count
