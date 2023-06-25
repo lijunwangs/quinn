@@ -486,14 +486,15 @@ impl Endpoint {
         if self.connections.len() >= server_config.concurrent_connections as usize || self.is_full()
         {
             debug!("refusing connection");
-            self.initial_close(
-                version,
-                addresses,
-                crypto,
-                &src_cid,
-                &loc_cid,
-                TransportError::CONNECTION_REFUSED(""),
-            );
+            // Ignore it without sending initial close to avoid build up
+            // self.initial_close(
+            //     version,
+            //     addresses,
+            //     crypto,
+            //     &src_cid,
+            //     &loc_cid,
+            //     TransportError::CONNECTION_REFUSED(""),
+            // );
             return None;
         }
 
