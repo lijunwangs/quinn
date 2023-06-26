@@ -487,14 +487,14 @@ impl Endpoint {
         {
             debug!("refusing connection");
             // Ignore it without sending initial close to avoid build up
-            // self.initial_close(
-            //     version,
-            //     addresses,
-            //     crypto,
-            //     &src_cid,
-            //     &loc_cid,
-            //     TransportError::CONNECTION_REFUSED(""),
-            // );
+            self.initial_close(
+                version,
+                addresses,
+                crypto,
+                &src_cid,
+                &loc_cid,
+                TransportError::CONNECTION_REFUSED(""),
+            );
             return None;
         }
 
