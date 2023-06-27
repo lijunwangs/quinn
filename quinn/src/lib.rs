@@ -111,4 +111,4 @@ const IO_LOOP_BOUND: usize = 160;
 const RECV_TIME_BOUND: Duration = Duration::from_micros(50);
 
 /// The maximum amount of time that should be spent in `sendmsg()` calls per endpoint iteration
-const SEND_TIME_BOUND: Duration = Duration::from_micros(500);
+const SEND_TIME_BOUND: Duration = Duration::from_micros(50);
