@@ -584,6 +584,7 @@ impl<'a> Future for Accept<'a> {
         if endpoint.driver_lost {
             return Poll::Ready(None);
         }
+        println!("Incoming connection queue length: {}", endpoint.incoming.len());
         if let Some(conn) = endpoint.incoming.pop_front() {
             return Poll::Ready(Some(conn));
         }
