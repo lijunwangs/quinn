@@ -430,6 +430,8 @@ impl Endpoint {
         if self.connections.len() >= server_config.concurrent_connections as usize || self.is_full()
         {
             debug!("refusing connection");
+            return None;
+            /*
             return Some(DatagramEvent::Response(self.initial_close(
                 version,
                 addresses,
@@ -437,6 +439,7 @@ impl Endpoint {
                 &src_cid,
                 TransportError::CONNECTION_REFUSED(""),
             )));
+            */
         }
 
         if dst_cid.len() < 8
