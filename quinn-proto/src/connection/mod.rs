@@ -4,7 +4,7 @@ use std::{
     convert::TryFrom,
     fmt, io, mem,
     net::{IpAddr, SocketAddr},
-    sync::Arc,
+    sync::{atomic::AtomicU64, Arc},
     time::{Duration, Instant},
 };
 
@@ -79,7 +79,114 @@ pub use streams::{
 
 mod timer;
 use crate::congestion::Controller;
+use lazy_static::lazy_static;
 use timer::{Timer, TimerTable};
+
+lazy_static! {
+    static ref TRANSMIT_COUNT: AtomicU64 = AtomicU64::default();
+    static ref CONNECTION_COUNT: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_TRANSMIT_CREATE: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_TRANSMIT_SEND: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_TRANSMIT_INITIAL_CLOSE: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_TRANSMIT_RETRY: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_TRANSMIT_STATELESS_RESET: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_TRANSMIT_STATELESS_VERSION_NEGOTIATION: AtomicU64 = AtomicU64::default();
+}
+
+/// Increment the transmit create stat
+pub fn increment_transmit_create() {
+    TOTAL_TRANSMIT_CREATE.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    println!(
+        "Transmit create {}",
+        TOTAL_TRANSMIT_CREATE.load(std::sync::atomic::Ordering::Relaxed)
+    );
+}
+
+/// Increment the transmit create stat
+pub fn increment_transmit_send(cnt: u64) {
+    TOTAL_TRANSMIT_SEND.fetch_add(cnt, std::sync::atomic::Ordering::Relaxed);
+    println!(
+        "Transmit send {}",
+        TOTAL_TRANSMIT_SEND.load(std::sync::atomic::Ordering::Relaxed)
+    );
+}
+
+/// Increment the transmit initial close stat
+pub fn increment_transmit_initial_close() {
+    TOTAL_TRANSMIT_INITIAL_CLOSE.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    println!(
+        "TOTAL_TRANSMIT_INITIAL_CLOSE {}",
+        TOTAL_TRANSMIT_INITIAL_CLOSE.load(std::sync::atomic::Ordering::Relaxed)
+    );
+}
+
+/// Increment the transmit retry stat
+pub fn increment_transmit_retry() {
+    TOTAL_TRANSMIT_RETRY.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    println!(
+        "TOTAL_TRANSMIT_RETRY {}",
+        TOTAL_TRANSMIT_RETRY.load(std::sync::atomic::Ordering::Relaxed)
+    );
+}
+
+/// Increment the transmit stateless reset stat
+pub fn increment_transmit_stateless_reset() {
+    TOTAL_TRANSMIT_STATELESS_RESET.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    println!(
+        "TOTAL_TRANSMIT_STATELESS_RESET {}",
+        TOTAL_TRANSMIT_STATELESS_RESET.load(std::sync::atomic::Ordering::Relaxed)
+    );
+}
+
+/// Increment the transmit version negotiation stat
+pub fn increment_transmit_version_negotiation() {
+    TOTAL_TRANSMIT_STATELESS_VERSION_NEGOTIATION.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    println!(
+        "TOTAL_TRANSMIT_STATELESS_VERSION_NEGOTIATION {}",
+        TOTAL_TRANSMIT_STATELESS_VERSION_NEGOTIATION.load(std::sync::atomic::Ordering::Relaxed)
+    );
+}
+
+/// Increment the transmit count stat
+pub fn increment_transmit_count() {
+    TRANSMIT_COUNT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    report_transmit_count();
+    increment_transmit_create();
+}
+
+/// decrement the transmit count stat
+pub fn decrement_transmit_count(count: u64) {
+    TRANSMIT_COUNT.fetch_sub(count, std::sync::atomic::Ordering::Relaxed);
+    report_transmit_count();
+}
+
+/// report the count
+pub fn report_transmit_count() {
+    println!(
+        "Transmit count: {}",
+        TRANSMIT_COUNT.load(std::sync::atomic::Ordering::Relaxed)
+    );
+}
+
+/// Increment the transmit count stat
+pub fn increment_connection_count() {
+    CONNECTION_COUNT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    report_connection_count();
+}
+
+/// decrement the transmit count stat
+pub fn decrement_connection_count(count: u64) {
+    CONNECTION_COUNT.fetch_sub(count, std::sync::atomic::Ordering::Relaxed);
+    report_connection_count();
+}
+
+/// report the count
+pub fn report_connection_count() {
+    println!(
+        "Connection count: {}",
+        CONNECTION_COUNT.load(std::sync::atomic::Ordering::Relaxed)
+    );
+}
 
 /// Protocol state and logic for a single QUIC connection
 ///
@@ -222,6 +329,12 @@ pub struct Connection {
     version: u32,
 }
 
+impl Drop for Connection {
+    fn drop(&mut self) {
+        decrement_connection_count(1);
+    }
+}
+
 impl Connection {
     pub(crate) fn new(
         endpoint_config: Arc<EndpointConfig>,
@@ -335,6 +448,7 @@ impl Connection {
             this.write_crypto();
             this.init_0rtt();
         }
+        increment_connection_count();
         this
     }
 
@@ -467,6 +581,8 @@ impl Connection {
                 self.stats.udp_tx.datagrams += 1;
                 self.stats.udp_tx.transmits += 1;
                 self.stats.udp_tx.bytes += buf.len() as u64;
+                increment_transmit_count();
+
                 return Some(Transmit {
                     destination,
                     contents: buf.freeze(),
@@ -833,6 +949,7 @@ impl Connection {
         self.stats.udp_tx.datagrams += num_datagrams as u64;
         self.stats.udp_tx.bytes += buf.len() as u64;
         self.stats.udp_tx.transmits += 1;
+        increment_transmit_count();
 
         Some(Transmit {
             destination: self.path.remote,

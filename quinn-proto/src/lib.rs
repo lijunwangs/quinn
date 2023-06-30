@@ -39,9 +39,10 @@ pub mod transport_parameters;
 mod varint;
 
 use bytes::Bytes;
+use connection::decrement_transmit_count;
 pub use varint::{VarInt, VarIntBoundsExceeded};
 
-mod connection;
+pub mod connection;
 pub use crate::connection::{
     BytesSource, Chunk, Chunks, Connection, ConnectionError, ConnectionStats, Datagrams, Event,
     FinishError, FrameStats, PathStats, ReadError, ReadableError, RecvStream, RttEstimator,
@@ -305,3 +306,10 @@ const MAX_UDP_PAYLOAD: u16 = 65527;
 const TIMER_GRANULARITY: Duration = Duration::from_millis(1);
 /// Maximum number of streams that can be uniquely identified by a stream ID
 const MAX_STREAM_COUNT: u64 = 1 << 60;
+
+
+impl Drop for Transmit {
+    fn drop(&mut self) {
+        decrement_transmit_count(1);
+    }
+}

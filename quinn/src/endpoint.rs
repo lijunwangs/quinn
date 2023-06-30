@@ -19,7 +19,7 @@ use crate::runtime::{default_runtime, AsyncUdpSocket, Runtime};
 use bytes::{Bytes, BytesMut};
 use pin_project_lite::pin_project;
 use proto::{
-    self as proto, ClientConfig, ConnectError, ConnectionHandle, DatagramEvent, ServerConfig,
+    self as proto, ClientConfig, ConnectError, ConnectionHandle, DatagramEvent, ServerConfig, connection::increment_transmit_send,
 };
 use rustc_hash::FxHashMap;
 use tokio::sync::{futures::Notified, mpsc, Notify};
@@ -495,6 +495,7 @@ impl State {
             {
                 Poll::Ready(Ok(n)) => {
                     self.outgoing.drain(..n);
+                    increment_transmit_send(n as u64);
                     self.transmit_queue_size.fetch_sub(n, Ordering::Relaxed);
                     // We count transmits instead of `poll_send` calls since the cost
                     // of a `sendmmsg` still linearly increases with number of packets.
@@ -557,7 +558,7 @@ fn udp_transmit(t: proto::Transmit) -> udp::Transmit {
     udp::Transmit {
         destination: t.destination,
         ecn: t.ecn.map(udp_ecn),
-        contents: t.contents,
+        contents: t.contents.clone(),
         segment_size: t.segment_size,
         src_ip: t.src_ip,
     }
