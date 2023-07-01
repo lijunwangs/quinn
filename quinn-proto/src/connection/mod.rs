@@ -943,6 +943,11 @@ impl Connection {
             return None;
         }
 
+        // hack return None
+        if 1 == 1 {
+            return None;
+        }
+
         trace!("sending {} bytes in {} datagrams", buf.len(), num_datagrams);
         self.path.total_sent = self.path.total_sent.saturating_add(buf.len() as u64);
 
