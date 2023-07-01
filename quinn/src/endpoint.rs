@@ -538,9 +538,9 @@ impl State {
                         }
                     }
                     Transmit(t) => {
-                        // println!("Outgoing queue size: {}", self.outgoing.len());
-                        // self.outgoing.push_back(udp_transmit(t));
-                        // self.transmit_queue_size.fetch_add(1, Ordering::Relaxed);
+                        println!("Outgoing queue size: {}", self.outgoing.len());
+                        self.outgoing.push_back(udp_transmit(t));
+                        self.transmit_queue_size.fetch_add(1, Ordering::Relaxed);
                     }
                 },
                 Poll::Ready(None) => unreachable!("EndpointInner owns one sender"),
