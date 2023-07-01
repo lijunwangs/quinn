@@ -865,9 +865,9 @@ impl State {
             // If the endpoint driver is gone, noop.
             // try not send the event to track further
 
-            // let _ = self
-            //     .endpoint_events
-            //     .send((self.handle, EndpointEvent::Transmit(t)));
+            let _ = self
+                .endpoint_events
+                .send((self.handle, EndpointEvent::Transmit(t)));
 
             if transmits >= MAX_TRANSMIT_DATAGRAMS {
                 // TODO: What isn't ideal here yet is that if we don't poll all
