@@ -82,6 +82,8 @@ use crate::congestion::Controller;
 use lazy_static::lazy_static;
 use timer::{Timer, TimerTable};
 
+const PRINT_METRICS: bool = true;
+
 lazy_static! {
     static ref TRANSMIT_COUNT: AtomicU64 = AtomicU64::default();
     static ref CONNECTION_COUNT: AtomicU64 = AtomicU64::default();
@@ -96,55 +98,67 @@ lazy_static! {
 /// Increment the transmit create stat
 pub fn increment_transmit_create() {
     TOTAL_TRANSMIT_CREATE.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-    println!(
-        "Transmit create {}",
-        TOTAL_TRANSMIT_CREATE.load(std::sync::atomic::Ordering::Relaxed)
-    );
+    if PRINT_METRICS {
+        println!(
+            "Transmit create {}",
+            TOTAL_TRANSMIT_CREATE.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
 }
 
 /// Increment the transmit create stat
 pub fn increment_transmit_send(cnt: u64) {
     TOTAL_TRANSMIT_SEND.fetch_add(cnt, std::sync::atomic::Ordering::Relaxed);
-    println!(
-        "Transmit send {}",
-        TOTAL_TRANSMIT_SEND.load(std::sync::atomic::Ordering::Relaxed)
-    );
+    if PRINT_METRICS {
+        println!(
+            "Transmit send {}",
+            TOTAL_TRANSMIT_SEND.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
 }
 
 /// Increment the transmit initial close stat
 pub fn increment_transmit_initial_close() {
     TOTAL_TRANSMIT_INITIAL_CLOSE.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-    println!(
-        "TOTAL_TRANSMIT_INITIAL_CLOSE {}",
-        TOTAL_TRANSMIT_INITIAL_CLOSE.load(std::sync::atomic::Ordering::Relaxed)
-    );
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_TRANSMIT_INITIAL_CLOSE {}",
+            TOTAL_TRANSMIT_INITIAL_CLOSE.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
 }
 
 /// Increment the transmit retry stat
 pub fn increment_transmit_retry() {
     TOTAL_TRANSMIT_RETRY.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-    println!(
-        "TOTAL_TRANSMIT_RETRY {}",
-        TOTAL_TRANSMIT_RETRY.load(std::sync::atomic::Ordering::Relaxed)
-    );
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_TRANSMIT_RETRY {}",
+            TOTAL_TRANSMIT_RETRY.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
 }
 
 /// Increment the transmit stateless reset stat
 pub fn increment_transmit_stateless_reset() {
     TOTAL_TRANSMIT_STATELESS_RESET.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-    println!(
-        "TOTAL_TRANSMIT_STATELESS_RESET {}",
-        TOTAL_TRANSMIT_STATELESS_RESET.load(std::sync::atomic::Ordering::Relaxed)
-    );
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_TRANSMIT_STATELESS_RESET {}",
+            TOTAL_TRANSMIT_STATELESS_RESET.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
 }
 
 /// Increment the transmit version negotiation stat
 pub fn increment_transmit_version_negotiation() {
     TOTAL_TRANSMIT_STATELESS_VERSION_NEGOTIATION.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-    println!(
-        "TOTAL_TRANSMIT_STATELESS_VERSION_NEGOTIATION {}",
-        TOTAL_TRANSMIT_STATELESS_VERSION_NEGOTIATION.load(std::sync::atomic::Ordering::Relaxed)
-    );
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_TRANSMIT_STATELESS_VERSION_NEGOTIATION {}",
+            TOTAL_TRANSMIT_STATELESS_VERSION_NEGOTIATION.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
 }
 
 /// Increment the transmit count stat
@@ -162,10 +176,12 @@ pub fn decrement_transmit_count(count: u64) {
 
 /// report the count
 pub fn report_transmit_count() {
-    println!(
-        "Transmit count: {}",
-        TRANSMIT_COUNT.load(std::sync::atomic::Ordering::Relaxed)
-    );
+    if PRINT_METRICS {
+        println!(
+            "Transmit count: {}",
+            TRANSMIT_COUNT.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
 }
 
 /// Increment the transmit count stat
@@ -182,10 +198,12 @@ pub fn decrement_connection_count(count: u64) {
 
 /// report the count
 pub fn report_connection_count() {
-    println!(
-        "Connection count: {}",
-        CONNECTION_COUNT.load(std::sync::atomic::Ordering::Relaxed)
-    );
+    if PRINT_METRICS {
+        println!(
+            "Connection count: {}",
+            CONNECTION_COUNT.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
 }
 
 /// Protocol state and logic for a single QUIC connection

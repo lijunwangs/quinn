@@ -307,7 +307,6 @@ const TIMER_GRANULARITY: Duration = Duration::from_millis(1);
 /// Maximum number of streams that can be uniquely identified by a stream ID
 const MAX_STREAM_COUNT: u64 = 1 << 60;
 
-
 impl Drop for Transmit {
     fn drop(&mut self) {
         decrement_transmit_count(1);

@@ -19,7 +19,11 @@ use crate::{
     cid_generator::{ConnectionIdGenerator, RandomConnectionIdGenerator},
     coding::BufMutExt,
     config::{ClientConfig, EndpointConfig, ServerConfig},
-    connection::{Connection, ConnectionError, increment_transmit_count, increment_transmit_version_negotiation, increment_transmit_retry, increment_transmit_stateless_reset, increment_transmit_initial_close},
+    connection::{
+        increment_transmit_count, increment_transmit_initial_close, increment_transmit_retry,
+        increment_transmit_stateless_reset, increment_transmit_version_negotiation, Connection,
+        ConnectionError,
+    },
     crypto::{self, Keys, UnsupportedVersion},
     frame,
     packet::{Header, Packet, PacketDecodeError, PacketNumber, PartialDecode},
