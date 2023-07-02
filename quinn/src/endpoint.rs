@@ -486,11 +486,11 @@ impl State {
                 break Ok(false);
             }
 
-            // if !self.send_limiter.allow_work() {
-            //     break Ok(true);
-            // } else {
-            //     println!("Limiter disallowed send");
-            // }
+            if !self.send_limiter.allow_work() {
+                break Ok(true);
+            } else {
+                println!("Limiter disallowed send");
+            }
 
             match self
                 .socket
