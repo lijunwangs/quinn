@@ -95,6 +95,7 @@ lazy_static! {
     static ref TOTAL_TRANSMIT_STATELESS_VERSION_NEGOTIATION: AtomicU64 = AtomicU64::default();
     static ref TOTAL_CONNECTION_CLOSE: AtomicU64 = AtomicU64::default();
     static ref TOTAL_ACK: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_HANDSHAKE: AtomicU64 = AtomicU64::default();
 }
 
 /// Increment the transmit create stat
@@ -230,6 +231,19 @@ pub fn increment_transmit_ack() {
         );
     }
 }
+
+
+/// Increment the transmit handshake stat
+pub fn increment_transmit_handshake() {
+    TOTAL_HANDSHAKE.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_HANDSHAKE {}",
+            TOTAL_HANDSHAKE.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
+}
+
 
 /// Protocol state and logic for a single QUIC connection
 ///
@@ -2984,6 +2998,7 @@ impl Connection {
 
         // HANDSHAKE_DONE
         if !is_0rtt && mem::replace(&mut space.pending.handshake_done, false) {
+            increment_transmit_handshake();
             buf.write(frame::Type::HANDSHAKE_DONE);
             sent.retransmits.get_or_create().handshake_done = true;
             // This is just a u8 counter and the frame is typically just sent once
