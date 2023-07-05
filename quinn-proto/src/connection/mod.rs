@@ -93,6 +93,7 @@ lazy_static! {
     static ref TOTAL_TRANSMIT_RETRY: AtomicU64 = AtomicU64::default();
     static ref TOTAL_TRANSMIT_STATELESS_RESET: AtomicU64 = AtomicU64::default();
     static ref TOTAL_TRANSMIT_STATELESS_VERSION_NEGOTIATION: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_CONNECTION_CLOSE: AtomicU64 = AtomicU64::default();
 }
 
 /// Increment the transmit create stat
@@ -202,6 +203,18 @@ pub fn report_connection_count() {
         println!(
             "Connection count: {}",
             CONNECTION_COUNT.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
+}
+
+
+/// Increment the transmit stateless reset stat
+pub fn increment_connection_close() {
+    TOTAL_CONNECTION_CLOSE.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_CONNECTION_CLOSE {}",
+            TOTAL_CONNECTION_CLOSE.load(std::sync::atomic::Ordering::Relaxed)
         );
     }
 }
@@ -821,6 +834,7 @@ impl Connection {
                 space_id == SpaceId::Initial && (self.side.is_client() || ack_eliciting);
 
             if close {
+                increment_connection_close();
                 trace!("sending CONNECTION_CLOSE");
                 // Encode ACKs before the ConnectionClose message, to give the receiver
                 // a better approximate on what data has been processed. This is
