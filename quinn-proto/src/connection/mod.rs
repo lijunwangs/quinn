@@ -94,6 +94,7 @@ lazy_static! {
     static ref TOTAL_TRANSMIT_STATELESS_RESET: AtomicU64 = AtomicU64::default();
     static ref TOTAL_TRANSMIT_STATELESS_VERSION_NEGOTIATION: AtomicU64 = AtomicU64::default();
     static ref TOTAL_CONNECTION_CLOSE: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_ACK: AtomicU64 = AtomicU64::default();
 }
 
 /// Increment the transmit create stat
@@ -208,13 +209,24 @@ pub fn report_connection_count() {
 }
 
 
-/// Increment the transmit stateless reset stat
+/// Increment the connection close stat
 pub fn increment_connection_close() {
     TOTAL_CONNECTION_CLOSE.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     if PRINT_METRICS {
         println!(
             "TOTAL_CONNECTION_CLOSE {}",
             TOTAL_CONNECTION_CLOSE.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
+}
+
+/// Increment the transmit stateless reset stat
+pub fn increment_transmit_ack() {
+    TOTAL_ACK.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_ACK {}",
+            TOTAL_ACK.load(std::sync::atomic::Ordering::Relaxed)
         );
     }
 }
@@ -2989,6 +3001,7 @@ impl Connection {
 
         // ACK
         if space.pending_acks.can_send() {
+            increment_transmit_ack();
             debug_assert!(!space.pending_acks.ranges().is_empty());
             Self::populate_acks(self.receiving_ecn, &mut sent, space, buf, &mut self.stats);
         }
