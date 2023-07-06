@@ -104,6 +104,8 @@ lazy_static! {
     static ref TOTAL_RETIRE_CONNECTION_ID: AtomicU64 = AtomicU64::default();
     static ref TOTAL_DATAGRAM: AtomicU64 = AtomicU64::default();
     static ref TOTAL_STREAM: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_CONNECTION_INCOMING: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_HANDSHAKE_FAILED: AtomicU64 = AtomicU64::default();
 }
 
 /// Increment the transmit create stat
@@ -334,6 +336,30 @@ pub fn increment_transmit_stream() {
         println!(
             "TOTAL_STREAM {}",
             TOTAL_STREAM.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
+}
+
+
+/// Increment the transmit handshake stat
+pub fn increment_connection_incoming() {
+    TOTAL_CONNECTION_INCOMING.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_CONNECTION_INCOMING {}",
+            TOTAL_CONNECTION_INCOMING.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
+}
+
+
+/// Increment the transmit handshake stat
+pub fn increment_handshake_failed() {
+    TOTAL_HANDSHAKE_FAILED.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_HANDSHAKE_FAILED {}",
+            TOTAL_HANDSHAKE_FAILED.load(std::sync::atomic::Ordering::Relaxed)
         );
     }
 }

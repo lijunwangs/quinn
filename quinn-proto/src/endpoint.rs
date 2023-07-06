@@ -22,7 +22,7 @@ use crate::{
     connection::{
         increment_transmit_count, increment_transmit_initial_close, increment_transmit_retry,
         increment_transmit_stateless_reset, increment_transmit_version_negotiation, Connection,
-        ConnectionError,
+        ConnectionError, increment_connection_incoming, increment_handshake_failed,
     },
     crypto::{self, Keys, UnsupportedVersion},
     frame,
@@ -564,10 +564,12 @@ impl Endpoint {
         match conn.handle_first_packet(now, addresses.remote, ecn, packet_number, packet, rest) {
             Ok(()) => {
                 trace!(id = ch.0, icid = %dst_cid, "connection incoming");
+                increment_connection_incoming();
                 Some(DatagramEvent::NewConnection(ch, conn))
             }
             Err(e) => {
                 debug!("handshake failed: {}", e);
+                increment_handshake_failed();
                 self.handle_event(ch, EndpointEvent(EndpointEventInner::Drained));
                 match e {
                     ConnectionError::TransportError(e) => Some(DatagramEvent::Response(
