@@ -452,6 +452,8 @@ impl State {
                                         self.transmit_queue_contents_len = self
                                             .transmit_queue_contents_len
                                             .saturating_add(contents_len);
+                                    } else {
+                                        println!("Skipping stateless packets...");
                                     }
                                 }
                                 None => {}
