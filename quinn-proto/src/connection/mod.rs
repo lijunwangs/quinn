@@ -340,7 +340,6 @@ pub fn increment_transmit_stream() {
     }
 }
 
-
 /// Increment the transmit handshake stat
 pub fn increment_connection_incoming() {
     TOTAL_CONNECTION_INCOMING.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
@@ -351,7 +350,6 @@ pub fn increment_connection_incoming() {
         );
     }
 }
-
 
 /// Increment the transmit handshake stat
 pub fn increment_handshake_failed() {

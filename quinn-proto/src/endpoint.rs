@@ -20,9 +20,10 @@ use crate::{
     coding::BufMutExt,
     config::{ClientConfig, EndpointConfig, ServerConfig},
     connection::{
-        increment_transmit_count, increment_transmit_initial_close, increment_transmit_retry,
+        increment_connection_incoming, increment_handshake_failed, increment_transmit_count,
+        increment_transmit_initial_close, increment_transmit_retry,
         increment_transmit_stateless_reset, increment_transmit_version_negotiation, Connection,
-        ConnectionError, increment_connection_incoming, increment_handshake_failed,
+        ConnectionError,
     },
     crypto::{self, Keys, UnsupportedVersion},
     frame,

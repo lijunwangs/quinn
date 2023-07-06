@@ -549,7 +549,11 @@ impl State {
                     Transmit(t) => {
                         let contents_len = t.contents.len();
                         self.outgoing.push_back(udp_transmit(t));
-                        println!("Outgoing queue size: {}  mem: {} ", self.outgoing.len(), self.transmit_queue_contents_len.load(Ordering::Relaxed));
+                        println!(
+                            "Outgoing queue size: {}  mem: {} ",
+                            self.outgoing.len(),
+                            self.transmit_queue_contents_len
+                        );
                         self.transmit_queue_contents_len = self
                             .transmit_queue_contents_len
                             .saturating_add(contents_len);
