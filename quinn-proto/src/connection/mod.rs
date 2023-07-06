@@ -94,8 +94,16 @@ lazy_static! {
     static ref TOTAL_TRANSMIT_STATELESS_RESET: AtomicU64 = AtomicU64::default();
     static ref TOTAL_TRANSMIT_STATELESS_VERSION_NEGOTIATION: AtomicU64 = AtomicU64::default();
     static ref TOTAL_CONNECTION_CLOSE: AtomicU64 = AtomicU64::default();
-    static ref TOTAL_ACK: AtomicU64 = AtomicU64::default();
     static ref TOTAL_HANDSHAKE: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_PING: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_ACK: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_PATH_CHALLENGE: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_PATH_RESPONSE: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_CRYPTO: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_NEW_CONNECTION_ID: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_RETIRE_CONNECTION_ID: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_DATAGRAM: AtomicU64 = AtomicU64::default();
+    static ref TOTAL_STREAM: AtomicU64 = AtomicU64::default();
 }
 
 /// Increment the transmit create stat
@@ -209,7 +217,6 @@ pub fn report_connection_count() {
     }
 }
 
-
 /// Increment the connection close stat
 pub fn increment_connection_close() {
     TOTAL_CONNECTION_CLOSE.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
@@ -217,6 +224,17 @@ pub fn increment_connection_close() {
         println!(
             "TOTAL_CONNECTION_CLOSE {}",
             TOTAL_CONNECTION_CLOSE.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
+}
+
+/// Increment the transmit handshake stat
+pub fn increment_transmit_handshake() {
+    TOTAL_HANDSHAKE.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_HANDSHAKE {}",
+            TOTAL_HANDSHAKE.load(std::sync::atomic::Ordering::Relaxed)
         );
     }
 }
@@ -232,18 +250,93 @@ pub fn increment_transmit_ack() {
     }
 }
 
-
-/// Increment the transmit handshake stat
-pub fn increment_transmit_handshake() {
-    TOTAL_HANDSHAKE.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+/// Increment the transmit stateless reset stat
+pub fn increment_transmit_ping() {
+    TOTAL_PING.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     if PRINT_METRICS {
         println!(
-            "TOTAL_HANDSHAKE {}",
-            TOTAL_HANDSHAKE.load(std::sync::atomic::Ordering::Relaxed)
+            "TOTAL_PING {}",
+            TOTAL_PING.load(std::sync::atomic::Ordering::Relaxed)
         );
     }
 }
 
+/// Increment the transmit handshake stat
+pub fn increment_transmit_path_challenge() {
+    TOTAL_PATH_CHALLENGE.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_PATH_CHALLENGE {}",
+            TOTAL_PATH_CHALLENGE.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
+}
+
+/// Increment the transmit handshake stat
+pub fn increment_transmit_path_response() {
+    TOTAL_PATH_RESPONSE.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_PATH_RESPONSE {}",
+            TOTAL_PATH_RESPONSE.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
+}
+
+/// Increment the transmit handshake stat
+pub fn increment_transmit_crypto() {
+    TOTAL_CRYPTO.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_CRYPTO {}",
+            TOTAL_CRYPTO.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
+}
+
+/// Increment the transmit handshake stat
+pub fn increment_transmit_new_connection_id() {
+    TOTAL_NEW_CONNECTION_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_NEW_CONNECTION_ID {}",
+            TOTAL_NEW_CONNECTION_ID.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
+}
+
+/// Increment the transmit handshake stat
+pub fn increment_transmit_retire_connection_id() {
+    TOTAL_RETIRE_CONNECTION_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_RETIRE_CONNECTION_ID {}",
+            TOTAL_RETIRE_CONNECTION_ID.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
+}
+
+/// Increment the transmit handshake stat
+pub fn increment_transmit_datagram() {
+    TOTAL_DATAGRAM.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_DATAGRAM {}",
+            TOTAL_DATAGRAM.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
+}
+
+/// Increment the transmit handshake stat
+pub fn increment_transmit_stream() {
+    TOTAL_STREAM.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if PRINT_METRICS {
+        println!(
+            "TOTAL_STREAM {}",
+            TOTAL_STREAM.load(std::sync::atomic::Ordering::Relaxed)
+        );
+    }
+}
 
 /// Protocol state and logic for a single QUIC connection
 ///
@@ -3008,6 +3101,7 @@ impl Connection {
 
         // PING
         if mem::replace(&mut space.ping_pending, false) {
+            increment_transmit_ping();
             trace!("PING");
             buf.write(frame::Type::PING);
             sent.non_retransmits = true;
@@ -3025,6 +3119,7 @@ impl Connection {
         if buf.len() + 9 < max_size && space_id == SpaceId::Data {
             // Transmit challenges with every outgoing frame on an unvalidated path
             if let Some(token) = self.path.challenge {
+                increment_transmit_path_challenge();
                 // But only send a packet solely for that purpose at most once
                 self.path.challenge_pending = false;
                 sent.non_retransmits = true;
@@ -3039,6 +3134,7 @@ impl Connection {
         // PATH_RESPONSE
         if buf.len() + 9 < max_size && space_id == SpaceId::Data {
             if let Some(response) = self.path_response.take() {
+                increment_transmit_path_response();
                 sent.non_retransmits = true;
                 sent.requires_padding = true;
                 trace!("PATH_RESPONSE {:08x}", response.token);
@@ -3081,6 +3177,7 @@ impl Connection {
                 truncated.offset,
                 truncated.data.len()
             );
+            increment_transmit_crypto();
             truncated.encode(buf);
             self.stats.frame_tx.crypto += 1;
             sent.retransmits.get_or_create().crypto.push_back(truncated);
@@ -3106,6 +3203,7 @@ impl Connection {
                 Some(x) => x,
                 None => break,
             };
+            increment_transmit_new_connection_id();
             trace!(
                 sequence = issued.sequence,
                 id = %issued.id,
@@ -3128,6 +3226,7 @@ impl Connection {
                 Some(x) => x,
                 None => break,
             };
+            increment_transmit_retire_connection_id();
             trace!(sequence = seq, "RETIRE_CONNECTION_ID");
             buf.write(frame::Type::RETIRE_CONNECTION_ID);
             buf.write_var(seq);
@@ -3137,6 +3236,7 @@ impl Connection {
 
         // DATAGRAM
         while buf.len() + Datagram::SIZE_BOUND < max_size && space_id == SpaceId::Data {
+            increment_transmit_datagram();
             match self.datagrams.write(buf, max_size) {
                 true => {
                     sent.non_retransmits = true;
@@ -3148,6 +3248,7 @@ impl Connection {
 
         // STREAM
         if space_id == SpaceId::Data {
+            increment_transmit_stream();
             sent.stream_frames = self.streams.write_stream_frames(buf, max_size);
             self.stats.frame_tx.stream += sent.stream_frames.len() as u64;
         }
