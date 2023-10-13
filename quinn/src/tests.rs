@@ -724,3 +724,68 @@ async fn two_datagram_readers() {
     assert!(*a == *b"one" || *b == *b"one");
     assert!(*a == *b"two" || *b == *b"two");
 }
+
+
+fn endpoint_with_config2(transport_config: TransportConfig) -> Endpoint {
+    let cert = rcgen::generate_simple_self_signed(vec!["localhost".into()]).unwrap();
+    let key = rustls::PrivateKey(cert.serialize_private_key_der());
+    let cert = rustls::Certificate(cert.serialize_der().unwrap());
+    let transport_config = Arc::new(transport_config);
+    let mut server_config = crate::ServerConfig::with_single_cert(vec![cert.clone()], key).unwrap();
+    server_config.transport_config(transport_config.clone());
+
+    let mut roots = rustls::RootCertStore::empty();
+    roots.add(&cert).unwrap();
+    let mut endpoint = Endpoint::server(
+        server_config,
+        SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 0),
+    )
+    .unwrap();
+    let mut client_config = ClientConfig::with_root_certificates(roots);
+    client_config.transport_config(transport_config);
+    endpoint.set_default_client_config(client_config);
+
+    endpoint
+}
+
+#[tokio::test]
+async fn initial_flood_test() {
+    let _guard = subscribe();
+    let config = TransportConfig::default();
+    let endpoint = endpoint_with_config2(config);
+
+    const MSG: &[u8] = b"goodbye!";
+    let server = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(104, 198, 3, 140)), 8009);
+
+    let sender = endpoint
+        .connect(server, "connect")
+        .unwrap()
+        .await
+        .expect("connect");
+    let mut s = sender.open_uni().await.unwrap();
+    s.write_all(MSG).await.unwrap();
+    s.finish().await.unwrap();
+    sender.close(0u32.into(), b"");
+
+    // Allow some time for the close to be sent and processed
+    tokio::time::sleep(Duration::from_millis(100)).await;
+
+    // Despite the connection having closed, we should be able to accept it...
+    let receiver = endpoint
+        .accept()
+        .await
+        .expect("endpoint")
+        .await
+        .expect("connection");
+
+    // ...and read what was sent.
+    let stream = receiver.accept_uni().await.expect("incoming streams");
+    let msg = stream
+        .read_to_end(usize::max_value())
+        .await
+        .expect("read_to_end");
+    assert_eq!(msg, MSG);
+
+    // But it's still definitely closed.
+    assert!(receiver.open_uni().await.is_err());
+}
