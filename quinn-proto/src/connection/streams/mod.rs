@@ -5,7 +5,7 @@ use std::{
 
 use bytes::Bytes;
 use thiserror::Error;
-use tracing::trace;
+use tracing::{info, trace};
 
 use super::spaces::{Retransmits, ThinRetransmits};
 use crate::{frame, Dir, StreamId, VarInt};
@@ -129,6 +129,7 @@ impl<'a> RecvStream<'a> {
     /// Discards unread data and notifies the peer to stop transmitting. Once stopped, further
     /// attempts to operate on a stream will yield `UnknownStream` errors.
     pub fn stop(&mut self, error_code: VarInt) -> Result<(), UnknownStream> {
+        info!("Stream is dropped {} code {}", self.id, error_code);
         let mut entry = match self.state.recv.entry(self.id) {
             hash_map::Entry::Occupied(s) => s,
             hash_map::Entry::Vacant(_) => return Err(UnknownStream { _private: () }),

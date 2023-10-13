@@ -9,6 +9,7 @@ use bytes::Bytes;
 use proto::{Chunk, Chunks, ConnectionError, ReadableError, StreamId};
 use thiserror::Error;
 use tokio::io::ReadBuf;
+use tracing::info;
 
 use crate::{
     connection::{ConnectionRef, UnknownStream},
@@ -445,6 +446,11 @@ impl Drop for RecvStream {
         }
         if !self.all_data_read {
             // Ignore UnknownStream errors
+            info!(
+                "Dropping stream {} from {}",
+                self.stream,
+                conn.inner.remote_address()
+            );
             let _ = conn.inner.recv_stream(self.stream).stop(0u32.into());
             conn.wake();
         }
