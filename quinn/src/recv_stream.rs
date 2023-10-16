@@ -5,6 +5,7 @@ use std::{
     task::{Context, Poll},
 };
 
+use backtrace::Backtrace;
 use bytes::Bytes;
 use proto::{Chunk, Chunks, ConnectionError, ReadableError, StreamId};
 use thiserror::Error;
@@ -452,9 +453,10 @@ impl Drop for RecvStream {
         if !self.all_data_read {
             // Ignore UnknownStream errors
             info!(
-                "Dropping stream {} from {}",
+                "Dropping stream {} from {} trace: {:?}",
                 self.stream,
-                conn.inner.remote_address()
+                conn.inner.remote_address(),
+                Backtrace::new()
             );
             let _ = conn.inner.recv_stream(self.stream).stop(0u32.into());
             conn.wake();
