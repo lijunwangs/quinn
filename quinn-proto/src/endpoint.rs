@@ -307,6 +307,10 @@ impl Endpoint {
                     return None;
                 }
             };
+            if self.connections.len() >= server_config.concurrent_connections as usize || self.is_full()
+            {
+                return None;
+            }
             return match first_decode.finish(Some(&*crypto.header.remote)) {
                 Ok(packet) => self
                     .handle_first_packet(now, addresses, ecn, packet, remaining, &crypto)
