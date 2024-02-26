@@ -519,23 +519,6 @@ impl Endpoint {
             } => (src_cid, dst_cid, token.clone(), number, version),
             _ => panic!("non-initial packet in handle_first_packet()"),
         };
-        let packet_number = packet_number.expand(0);
-
-        if crypto
-            .packet
-            .remote
-            .decrypt(packet_number, &packet.header_data, &mut packet.payload)
-            .is_err()
-        {
-            debug!(packet_number, "failed to authenticate initial packet");
-            return None;
-        };
-
-        if !packet.reserved_bits_valid() {
-            debug!("dropping connection attempt with invalid reserved bits");
-            return None;
-        }
-
         let loc_cid = self.new_cid();
         let server_config = self.server_config.as_ref().unwrap();
 
@@ -550,6 +533,22 @@ impl Endpoint {
                 &loc_cid,
                 TransportError::CONNECTION_REFUSED(""),
             );
+            return None;
+        }
+        let packet_number = packet_number.expand(0);
+
+        if crypto
+            .packet
+            .remote
+            .decrypt(packet_number, &packet.header_data, &mut packet.payload)
+            .is_err()
+        {
+            debug!(packet_number, "failed to authenticate initial packet");
+            return None;
+        };
+
+        if !packet.reserved_bits_valid() {
+            debug!("dropping connection attempt with invalid reserved bits");
             return None;
         }
 
