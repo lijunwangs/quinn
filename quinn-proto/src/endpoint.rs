@@ -9,6 +9,13 @@ use std::{
 };
 
 use bytes::{BufMut, Bytes, BytesMut};
+use governor::{
+    clock::DefaultClock,
+    middleware::NoOpMiddleware,
+    state::{InMemoryState, NotKeyed},
+    Quota, RateLimiter,
+};
+use nonzero_ext::*;
 use rand::{rngs::StdRng, Rng, RngCore, SeedableRng};
 use rustc_hash::FxHashMap;
 use slab::Slab;
@@ -69,6 +76,8 @@ pub struct Endpoint {
     /// `transmit_queue_contents_len` + `socket_buffer_fill` represents the total contents length
     /// of outstanding outgoing packets.
     socket_buffer_fill: usize,
+
+    rate_limiter: RateLimiter<NotKeyed, InMemoryState, DefaultClock, NoOpMiddleware>,
 }
 
 /// The maximum size of content length of packets in the outgoing transmit queue. Transmit packets
@@ -102,6 +111,7 @@ impl Endpoint {
             allow_mtud,
             transmit_queue_contents_len: 0,
             socket_buffer_fill: 0,
+            rate_limiter: RateLimiter::direct(Quota::per_second(nonzero!(1024u32))),
         }
     }
 
@@ -534,6 +544,17 @@ impl Endpoint {
         if !packet.reserved_bits_valid() {
             debug!("dropping connection attempt with invalid reserved bits");
             return None;
+        }
+
+        // Hard code check against local host, to make per source ip address
+        if addresses.remote.ip().to_string() == "127.0.0.1" {
+            if let Err(err) = self.rate_limiter.check() {
+                debug!(
+                    "dropping connection as too many new connections in too short time: {:?}",
+                    err
+                );
+                return None;
+            }
         }
 
         let loc_cid = self.new_cid();
