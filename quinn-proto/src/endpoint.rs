@@ -539,17 +539,6 @@ impl Endpoint {
             );
             return None;
         }
-        let packet_number = packet_number.expand(0);
-
-        if crypto
-            .packet
-            .remote
-            .decrypt(packet_number, &packet.header_data, &mut packet.payload)
-            .is_err()
-        {
-            debug!(packet_number, "failed to authenticate initial packet");
-            return None;
-        };
 
         if !packet.reserved_bits_valid() {
             debug!("dropping connection attempt with invalid reserved bits");
@@ -639,6 +628,18 @@ impl Endpoint {
             }
         } else {
             (None, dst_cid)
+        };
+
+        let packet_number = packet_number.expand(0);
+
+        if crypto
+            .packet
+            .remote
+            .decrypt(packet_number, &packet.header_data, &mut packet.payload)
+            .is_err()
+        {
+            debug!(packet_number, "failed to authenticate initial packet");
+            return None;
         };
 
         let server_config = server_config.clone();
