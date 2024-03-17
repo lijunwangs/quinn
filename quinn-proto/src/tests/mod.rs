@@ -154,13 +154,8 @@ fn draft_version_compat() {
 #[test]
 fn stateless_retry() {
     let _guard = subscribe();
-    let mut pair = Pair::new(
-        Default::default(),
-        ServerConfig {
-            use_retry: true,
-            ..server_config()
-        },
-    );
+    let mut pair = Pair::default();
+    pair.server.incoming_connection_behavior = IncomingConnectionBehavior::Validate;
     pair.connect();
 }
 
@@ -446,13 +441,8 @@ fn high_latency_handshake() {
 #[test]
 fn zero_rtt_happypath() {
     let _guard = subscribe();
-    let mut pair = Pair::new(
-        Default::default(),
-        ServerConfig {
-            use_retry: true,
-            ..server_config()
-        },
-    );
+    let mut pair = Pair::default();
+    pair.server.incoming_connection_behavior = IncomingConnectionBehavior::Validate;
     let config = client_config();
 
     // Establish normal connection
@@ -1926,7 +1916,7 @@ fn connect_too_low_mtu() {
 
     pair.begin_connect(client_config());
     pair.drive();
-    pair.server.assert_no_accept()
+    pair.server.assert_no_accept();
 }
 
 #[test]
@@ -2209,3 +2199,50 @@ fn reject_new_connections() {
     pair.server.assert_no_accept();
     assert!(pair.client.connections.get(&client_ch).unwrap().is_closed());
 }
+<<<<<<< HEAD
+=======
+
+/// Verify that an endpoint which receives but does not send ACK-eliciting data still receives ACKs
+/// occasionally. This is not required for conformance, but makes loss detection more responsive and
+/// reduces receiver memory use.
+#[test]
+fn pure_sender_voluntarily_acks() {
+    let _guard = subscribe();
+    let mut pair = Pair::default();
+    let (client_ch, server_ch) = pair.connect();
+
+    let receiver_acks_initial = pair.server_conn_mut(server_ch).stats().frame_rx.acks;
+
+    for _ in 0..100 {
+        const MSG: &[u8] = b"hello";
+        pair.client_datagrams(client_ch)
+            .send(Bytes::from_static(MSG))
+            .unwrap();
+        pair.drive();
+        assert_eq!(pair.server_datagrams(server_ch).recv().unwrap(), MSG);
+    }
+
+    let receiver_acks_final = pair.server_conn_mut(server_ch).stats().frame_rx.acks;
+    assert!(receiver_acks_final > receiver_acks_initial);
+}
+
+#[test]
+fn reject_manually() {
+    let _guard = subscribe();
+    let mut pair = Pair::default();
+    pair.server.incoming_connection_behavior = IncomingConnectionBehavior::RejectAll;
+
+    // The server should now reject incoming connections.
+    let client_ch = pair.begin_connect(client_config());
+    pair.drive();
+    pair.server.assert_no_accept();
+    let client = pair.client.connections.get_mut(&client_ch).unwrap();
+    assert!(client.is_closed());
+    assert!(matches!(
+        client.poll(),
+        Some(Event::ConnectionLost {
+            reason: ConnectionError::ConnectionClosed(close)
+        }) if close.error_code == TransportErrorCode::CONNECTION_REFUSED
+    ));
+}
+>>>>>>> 05901f2d (Factor out check_connection_limit)
