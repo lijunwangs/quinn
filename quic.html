@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js light">
+<html lang="en" class="light" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -10,7 +10,7 @@
         
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff" />
+        <meta name="theme-color" content="#ffffff">
 
         <link rel="icon" href="favicon.svg">
         <link rel="shortcut icon" href="favicon.png">
@@ -31,7 +31,7 @@
         <!-- Custom theme stylesheets -->
 
     </head>
-    <body>
+    <body class="sidebar-visible no-js">
     <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
@@ -61,31 +61,38 @@
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             var html = document.querySelector('html');
-            html.classList.remove('no-js')
             html.classList.remove('light')
             html.classList.add(theme);
-            html.classList.add('js');
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
         </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var html = document.querySelector('html');
+            var body = document.querySelector('body');
             var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
             }
-            html.classList.remove('sidebar-visible');
-            html.classList.add("sidebar-" + sidebar);
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
                 <ol class="chapter"><li class="chapter-item expanded "><a href="networking-introduction.html"><strong aria-hidden="true">1.</strong> Networking introduction</a></li><li class="chapter-item expanded "><a href="quic.html" class="active"><strong aria-hidden="true">2.</strong> QUIC introduction</a></li><li class="chapter-item expanded "><a href="quinn.html"><strong aria-hidden="true">3.</strong> QUINN Introduction</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="quinn/certificate.html"><strong aria-hidden="true">3.1.</strong> Certificate Configuration</a></li><li class="chapter-item expanded "><a href="quinn/set-up-connection.html"><strong aria-hidden="true">3.2.</strong> Connection Setup</a></li><li class="chapter-item expanded "><a href="quinn/data-transfer.html"><strong aria-hidden="true">3.3.</strong> Data Transfer</a></li></ol></li></ol>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
         </nav>
 
         <!-- Track and set sidebar scroll position -->
@@ -116,9 +123,9 @@
                                 <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
-                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
                             <i class="fa fa-bars"></i>
-                        </button>
+                        </label>
                         <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
                             <i class="fa fa-paint-brush"></i>
                         </button>
@@ -168,23 +175,23 @@
                     <main>
                         <h1 id="the-quic-protocol"><a class="header" href="#the-quic-protocol">The QUIC protocol</a></h1>
 <p><a href="https://en.wikipedia.org/wiki/QUIC">QUIC</a> is a general-purpose network protocol built on top of UDP,
-and <a href="https://www.rfc-editor.org/rfc/rfc9000.html">standardized</a> by the <a href="https://www.ietf.org/">IETF</a>. Although QUIC is still relatively new, 
-the protocol is used for all connections from Chrome web browsers to the Google servers. </p>
-<p>QUIC solves a number of transport-layer and application-layer problems experienced by modern web applications. 
-It is very similar to TCP+TLS+HTTP2, but implemented on top of UDP. 
-Having QUIC as a self-contained protocol allows innovations which aren’t 
+and <a href="https://www.rfc-editor.org/rfc/rfc9000.html">standardized</a> by the <a href="https://www.ietf.org/">IETF</a>. Although QUIC is still relatively new,
+the protocol is used for all connections from Chrome web browsers to the Google servers.</p>
+<p>QUIC solves a number of transport-layer and application-layer problems experienced by modern web applications.
+It is very similar to TCP+TLS+HTTP2, but implemented on top of UDP.
+Having QUIC as a self-contained protocol allows innovations which aren’t
 possible with existing protocols as they are hampered by legacy clients and middleboxes.</p>
 <p>Key advantages of QUIC over TCP+TLS+HTTP2 include:</p>
 <ul>
 <li>Improved connection establishment speed (0-rtt).</li>
 <li>Improved congestion control by moving congestion control algorithms into the user space at both endpoints.</li>
-<li>Improved bandwidth estimation in each direction to avoid congestion. </li>
+<li>Improved bandwidth estimation in each direction to avoid congestion.</li>
 <li>Improved multiplexing without head-of-line blocking.</li>
-<li>Contains forward error correction (FEC). </li>
+<li>Contains forward error correction (FEC).</li>
 </ul>
 <p>While QUIC's intentions are originally web-oriented, it offers interesting opportunities in other areas like game networking.
-One thing is for sure, QUIC has many great potentials and will serve us in the future with HTTP/3. </p>
-<p>In the upcoming chapter we will be discussing various aspects of QUIC also in relation to Quinn. </p>
+One thing is for sure, QUIC has many great potentials and will serve us in the future with HTTP/3.</p>
+<p>In the upcoming chapter we will be discussing various aspects of QUIC also in relation to Quinn.</p>
 
                     </main>
 
@@ -194,7 +201,7 @@ One thing is for sure, QUIC has many great potentials and will serve us in the f
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="quinn.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="quinn.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -208,7 +215,7 @@ One thing is for sure, QUIC has many great potentials and will serve us in the f
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="quinn.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="quinn.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
