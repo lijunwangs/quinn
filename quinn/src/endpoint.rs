@@ -20,6 +20,7 @@ use proto::{
 };
 use rustc_hash::FxHashMap;
 use tokio::sync::{futures::Notified, mpsc, Notify};
+use  tracing::error;
 use udp::{RecvMeta, UdpState, BATCH_SIZE};
 
 use crate::{
@@ -427,6 +428,7 @@ impl State {
                                         self.runtime.clone(),
                                     );
                                     self.incoming.push_back(conn);
+                                    error!("Incoming length {}", self.incoming.len());
                                 }
                                 Some((handle, DatagramEvent::ConnectionEvent(event))) => {
                                     // Ignoring errors from dropped connections that haven't yet been cleaned up
