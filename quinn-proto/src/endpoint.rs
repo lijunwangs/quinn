@@ -541,7 +541,7 @@ impl Endpoint {
 
         if self.connections.len() >= server_config.concurrent_connections as usize || self.is_full()
         {
-            debug!("refusing connection");
+            debug!("refusing connection connection length: {}", self.connections.len());
             self.initial_close(
                 version,
                 addresses,
