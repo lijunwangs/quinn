@@ -413,6 +413,7 @@ impl State {
                         let mut data: BytesMut = buf[0..meta.len].into();
                         while !data.is_empty() {
                             let buf = data.split_to(meta.stride.min(data.len()));
+                            tracing::debug!("Got a packet from {}", meta.addr);
                             match self.inner.handle(
                                 now,
                                 meta.addr,
