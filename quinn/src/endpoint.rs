@@ -427,8 +427,8 @@ impl State {
                                         self.udp_state.clone(),
                                         self.runtime.clone(),
                                     );
+                                    error!("Incoming length {} from {:?}", self.incoming.len(), conn.remote_address());
                                     self.incoming.push_back(conn);
-                                    error!("Incoming length {}", self.incoming.len());
                                 }
                                 Some((handle, DatagramEvent::ConnectionEvent(event))) => {
                                     // Ignoring errors from dropped connections that haven't yet been cleaned up
