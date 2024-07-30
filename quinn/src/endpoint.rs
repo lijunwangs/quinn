@@ -28,6 +28,7 @@ use rustc_hash::FxHashMap;
 use tokio::sync::{futures::Notified, mpsc, Notify};
 use tracing::{Instrument, Span};
 use udp::{RecvMeta, BATCH_SIZE};
+use tracing::info;
 
 use crate::{
     connection::Connecting, incoming::Incoming, work_limiter::WorkLimiter, ConnectionEvent,
@@ -593,6 +594,7 @@ impl<'a> Future for Accept<'a> {
         if endpoint.driver_lost {
             return Poll::Ready(None);
         }
+        info!("Incoming length: {}", endpoint.recv_state.incoming.len());
         if let Some(incoming) = endpoint.recv_state.incoming.pop_front() {
             // Release the mutex lock on endpoint so cloning it doesn't deadlock
             drop(endpoint);
