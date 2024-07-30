@@ -26,9 +26,9 @@ use proto::{
 };
 use rustc_hash::FxHashMap;
 use tokio::sync::{futures::Notified, mpsc, Notify};
+use tracing::info;
 use tracing::{Instrument, Span};
 use udp::{RecvMeta, BATCH_SIZE};
-use tracing::info;
 
 use crate::{
     connection::Connecting, incoming::Incoming, work_limiter::WorkLimiter, ConnectionEvent,
