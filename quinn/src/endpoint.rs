@@ -148,6 +148,7 @@ impl Endpoint {
     /// filter connection attempts or force address validation, or converted into an intermediate
     /// `Connecting` future which can be used to e.g. send 0.5-RTT data.
     pub fn accept(&self) -> Accept<'_> {
+        info!("Accepting a connection");
         Accept {
             endpoint: self,
             notify: self.inner.shared.incoming.notified(),
