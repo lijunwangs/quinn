@@ -25,6 +25,8 @@ use proto::{
     EndpointEvent, ServerConfig,
 };
 use rustc_hash::FxHashMap;
+use std::sync::atomic::{AtomicUsize, Ordering};
+
 use tokio::sync::{futures::Notified, mpsc, Notify};
 use tracing::info;
 use tracing::{Instrument, Span};
@@ -594,7 +596,11 @@ impl<'a> Future for Accept<'a> {
         if endpoint.driver_lost {
             return Poll::Ready(None);
         }
-        info!("Incoming length: {}", endpoint.recv_state.incoming.len());
+        static COUNTER: AtomicUsize = AtomicUsize::new(0);
+        let count = COUNTER.fetch_add(1, Ordering::SeqCst);
+        if count % 1000 == 0 {
+            info!("Incoming length: {}", endpoint.recv_state.incoming.len());
+        }
         if let Some(incoming) = endpoint.recv_state.incoming.pop_front() {
             // Release the mutex lock on endpoint so cloning it doesn't deadlock
             drop(endpoint);
