@@ -598,9 +598,18 @@ impl<'a> Future for Accept<'a> {
             return Poll::Ready(None);
         }
         static COUNTER: AtomicUsize = AtomicUsize::new(0);
+        static MAX_COUNTER: AtomicUsize = AtomicUsize::new(0);
         let count = COUNTER.fetch_add(1, Ordering::SeqCst);
+        if endpoint.recv_state.incoming.len() > MAX_COUNTER.load(Ordering::Relaxed) {
+            MAX_COUNTER.store(endpoint.recv_state.incoming.len(), Ordering::Relaxed);
+        }
         if count % 1000 == 0 {
-            info!("Incoming length: {}", endpoint.recv_state.incoming.len());
+            info!(
+                "Incoming length: {}, max {}",
+                endpoint.recv_state.incoming.len(),
+                MAX_COUNTER.load(Ordering::Relaxed)
+            );
+            MAX_COUNTER.store(0, Ordering::Relaxed);
         }
         if let Some(incoming) = endpoint.recv_state.incoming.pop_front() {
             // Release the mutex lock on endpoint so cloning it doesn't deadlock
