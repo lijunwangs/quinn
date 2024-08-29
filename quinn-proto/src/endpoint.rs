@@ -8,6 +8,7 @@ use std::{
     time::{Instant, SystemTime},
 };
 
+use backtrace::Backtrace;
 use bytes::{BufMut, Bytes, BytesMut};
 use rand::{rngs::StdRng, Rng, RngCore, SeedableRng};
 use rustc_hash::FxHashMap;
@@ -805,9 +806,10 @@ impl Endpoint {
 
     /// Clean up endpoint data structures associated with an `Incoming`.
     fn clean_up_incoming(&mut self, incoming: &Incoming) {
+        let bt = Backtrace::new();
         self.index.remove_initial(incoming.orig_dst_cid);
         let incoming_buffer = self.incoming_buffers.remove(incoming.incoming_idx);
-        println!("Removed incoming_buffer at idx {} in clean_up_incoming", incoming.incoming_idx);
+        println!("Removed incoming_buffer at idx {} in clean_up_incoming {:?}", incoming.incoming_idx, bt);
         self.all_incoming_buffers_total_bytes -= incoming_buffer.total_bytes;
     }
 
