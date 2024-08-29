@@ -210,6 +210,7 @@ impl Endpoint {
             };
             match route_to {
                 RouteDatagramTo::Incoming(incoming_idx) => {
+                    println!("retrieving incoming buffer for {incoming_idx}");
                     let incoming_buffer = &mut self.incoming_buffers[incoming_idx];
                     let config = &self.server_config.as_ref().unwrap();
 
@@ -532,6 +533,7 @@ impl Endpoint {
         let incoming_idx = self.incoming_buffers.insert(IncomingBuffer::default());
         self.index
             .insert_initial_incoming(header.dst_cid, incoming_idx);
+        println!("inserted incoming connection idx: {incoming_idx}");
 
         Some(DatagramEvent::NewConnection(Incoming {
             addresses,
@@ -561,6 +563,7 @@ impl Endpoint {
         let remote_address_validated = incoming.remote_address_validated();
         incoming.improper_drop_warner.dismiss();
         let incoming_buffer = self.incoming_buffers.remove(incoming.incoming_idx);
+        println!("Removed incoming_buffer for idx {}", incoming.incoming_idx);
         self.all_incoming_buffers_total_bytes -= incoming_buffer.total_bytes;
 
         let packet_number = incoming.packet.header.number.expand(0);
@@ -804,6 +807,7 @@ impl Endpoint {
     fn clean_up_incoming(&mut self, incoming: &Incoming) {
         self.index.remove_initial(incoming.orig_dst_cid);
         let incoming_buffer = self.incoming_buffers.remove(incoming.incoming_idx);
+        println!("Removed incoming_buffer at idx {} in clean_up_incoming", incoming.incoming_idx);
         self.all_incoming_buffers_total_bytes -= incoming_buffer.total_bytes;
     }
 
