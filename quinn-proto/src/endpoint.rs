@@ -212,7 +212,7 @@ impl Endpoint {
             };
             match route_to {
                 RouteDatagramTo::Incoming(incoming_idx) => {
-                    println!("retrieving incoming buffer for {incoming_idx} {:p} {:?} thread {:?} dst_cid: {:?}", self as *const Self, Backtrace::new(), std::thread::current().id(), dst_cid);
+                    println!("retrieving incoming buffer for {incoming_idx} {:p} thread {:?} dst_cid:  {:?} trace: {:?}", self as *const Self, std::thread::current().id(), dst_cid, Backtrace::new());
                     let incoming_buffer = &mut self.incoming_buffers[incoming_idx];
                     let config = &self.server_config.as_ref().unwrap();
 
@@ -536,7 +536,11 @@ impl Endpoint {
         let ptr: *const Self = self;
         self.index
             .insert_initial_incoming(header.dst_cid, incoming_idx);
-        println!("inserted incoming connection idx: {incoming_idx} {:p} {:?}", ptr, Backtrace::new());
+        println!(
+            "inserted incoming connection idx: {incoming_idx} {:p} {:?}",
+            ptr,
+            Backtrace::new()
+        );
 
         Some(DatagramEvent::NewConnection(Incoming {
             addresses,
@@ -566,7 +570,12 @@ impl Endpoint {
         let remote_address_validated = incoming.remote_address_validated();
         incoming.improper_drop_warner.dismiss();
         let incoming_buffer = self.incoming_buffers.remove(incoming.incoming_idx);
-        println!("Removed incoming_buffer for idx {} {:p} {:?}", incoming.incoming_idx, self as *const Self, Backtrace::new());
+        println!(
+            "Removed incoming_buffer for idx {} {:p} {:?}",
+            incoming.incoming_idx,
+            self as *const Self,
+            Backtrace::new()
+        );
         self.all_incoming_buffers_total_bytes -= incoming_buffer.total_bytes;
 
         let packet_number = incoming.packet.header.number.expand(0);
@@ -811,7 +820,13 @@ impl Endpoint {
         let bt = Backtrace::new();
         self.index.remove_initial(incoming.orig_dst_cid);
         let incoming_buffer = self.incoming_buffers.remove(incoming.incoming_idx);
-        println!("Removed incoming_buffer at idx {} {:p} in clean_up_incoming {:?}", incoming.incoming_idx, self as *const Self,  bt);
+        println!(
+            "Removed incoming_buffer at idx {} {:p} in clean_up_incoming thread {:?} {:?}",
+            incoming.incoming_idx,
+            self as *const Self,
+            std::thread::current().id(),
+            bt
+        );
         self.all_incoming_buffers_total_bytes -= incoming_buffer.total_bytes;
     }
 
@@ -1030,7 +1045,10 @@ struct ConnectionIndex {
 impl ConnectionIndex {
     /// Associate an incoming connection with its initial destination CID
     fn insert_initial_incoming(&mut self, dst_cid: ConnectionId, incoming_key: usize) {
-        println!("inserted incoming into index: {incoming_key} dst_cid: {dst_cid:?} thread {:?}", std::thread::current().id());
+        println!(
+            "inserted incoming into index: {incoming_key} dst_cid: {dst_cid:?} thread {:?}",
+            std::thread::current().id()
+        );
         self.connection_ids_initial
             .insert(dst_cid, RouteDatagramTo::Incoming(incoming_key));
     }
