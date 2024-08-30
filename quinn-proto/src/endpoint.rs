@@ -532,9 +532,10 @@ impl Endpoint {
         };
 
         let incoming_idx = self.incoming_buffers.insert(IncomingBuffer::default());
+        let ptr: *const Self = self;
         self.index
             .insert_initial_incoming(header.dst_cid, incoming_idx);
-        println!("inserted incoming connection idx: {incoming_idx} {:p} {:?}", self as *const Self, Backtrace::new());
+        println!("inserted incoming connection idx: {incoming_idx} {:p} {:?}", ptr, Backtrace::new());
 
         Some(DatagramEvent::NewConnection(Incoming {
             addresses,
