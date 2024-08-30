@@ -211,7 +211,7 @@ impl Endpoint {
             };
             match route_to {
                 RouteDatagramTo::Incoming(incoming_idx) => {
-                    println!("retrieving incoming buffer for {incoming_idx} {:p} {:?}", self, Backtrace::new());
+                    println!("retrieving incoming buffer for {incoming_idx} {:p} {:?}", self as *const Self, Backtrace::new());
                     let incoming_buffer = &mut self.incoming_buffers[incoming_idx];
                     let config = &self.server_config.as_ref().unwrap();
 
@@ -534,7 +534,7 @@ impl Endpoint {
         let incoming_idx = self.incoming_buffers.insert(IncomingBuffer::default());
         self.index
             .insert_initial_incoming(header.dst_cid, incoming_idx);
-        println!("inserted incoming connection idx: {incoming_idx} {:p} {:?}", self, Backtrace::new());
+        println!("inserted incoming connection idx: {incoming_idx} {:p} {:?}", self as *const Self, Backtrace::new());
 
         Some(DatagramEvent::NewConnection(Incoming {
             addresses,
@@ -564,7 +564,7 @@ impl Endpoint {
         let remote_address_validated = incoming.remote_address_validated();
         incoming.improper_drop_warner.dismiss();
         let incoming_buffer = self.incoming_buffers.remove(incoming.incoming_idx);
-        println!("Removed incoming_buffer for idx {} {:p} {:?}", incoming.incoming_idx, self, Backtrace::new());
+        println!("Removed incoming_buffer for idx {} {:p} {:?}", incoming.incoming_idx, self as *const Self, Backtrace::new());
         self.all_incoming_buffers_total_bytes -= incoming_buffer.total_bytes;
 
         let packet_number = incoming.packet.header.number.expand(0);
@@ -809,7 +809,7 @@ impl Endpoint {
         let bt = Backtrace::new();
         self.index.remove_initial(incoming.orig_dst_cid);
         let incoming_buffer = self.incoming_buffers.remove(incoming.incoming_idx);
-        println!("Removed incoming_buffer at idx {} {:p} in clean_up_incoming {:?}", incoming.incoming_idx, self,  bt);
+        println!("Removed incoming_buffer at idx {} {:p} in clean_up_incoming {:?}", incoming.incoming_idx, self as *const Self,  bt);
         self.all_incoming_buffers_total_bytes -= incoming_buffer.total_bytes;
     }
 
