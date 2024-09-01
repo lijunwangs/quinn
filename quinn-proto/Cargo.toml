@@ -27,6 +27,7 @@ log = ["tracing/log"]
 arbitrary = { workspace = true, optional = true }
 backtrace = "0.3"
 bytes = { workspace = true }
+chrono = "0.4"
 rustc-hash = { workspace = true }
 rand = { workspace = true }
 ring = { workspace = true, optional = true }
