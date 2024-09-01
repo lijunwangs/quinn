@@ -212,7 +212,7 @@ impl Endpoint {
             };
             match route_to {
                 RouteDatagramTo::Incoming(incoming_idx) => {
-                    println!("retrieving incoming buffer {:?} for index: {:p} {incoming_idx} {:p} thread {:?} dst_cid:  {:?} trace: {:?}",
+                    println!("Retrieving incoming buffer {:?} for index: {:p} {incoming_idx} {:p} thread {:?} dst_cid:  {:?} trace: {:?}",
                         chrono::Utc::now(),
                         &self.index,
                         self as *const Self, std::thread::current().id(), dst_cid, Backtrace::new());
