@@ -1128,6 +1128,12 @@ impl ConnectionIndex {
         }
         if datagram.is_initial() || datagram.is_0rtt() {
             if let Some(&ch) = self.connection_ids_initial.get(datagram.dst_cid()) {
+                println!(
+                    "Got RouteDatagramTo::Incoming: index: {:p}, dst_cid: {:?} thread: {:?}",
+                    self,
+                    datagram.dst_cid(),
+                    std::thread::current().id()
+                );
                 return Some(ch);
             }
         }
