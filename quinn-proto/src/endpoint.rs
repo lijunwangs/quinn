@@ -825,9 +825,10 @@ impl Endpoint {
         self.index.remove_initial(incoming.orig_dst_cid);
         let incoming_buffer = self.incoming_buffers.remove(incoming.incoming_idx);
         println!(
-            "Removed incoming_buffer {:?} at idx  {} {:p} in clean_up_incoming thread {:?} idx: {:p} {:?}",
+            "Removed incoming_buffer {:?} at idx  {} dst_cid: {:?} {:p} in clean_up_incoming thread {:?} idx: {:p} {:?}",
             chrono::Utc::now(),
             incoming.incoming_idx,
+            incoming.orig_dst_cid,
             self as *const Self,
             std::thread::current().id(),
             &self.index,
@@ -1052,7 +1053,7 @@ impl ConnectionIndex {
     /// Associate an incoming connection with its initial destination CID
     fn insert_initial_incoming(&mut self, dst_cid: ConnectionId, incoming_key: usize) {
         println!(
-            "inserted incoming into index: {:?} {:p}, {incoming_key} dst_cid: {dst_cid:?} thread {:?}",
+            "inserted incoming  at: {:?} into index {:p}, incoming_key: {incoming_key} dst_cid: {dst_cid:?} thread {:?}",
             chrono::Utc::now(),
             self as *const Self,
             std::thread::current().id()
@@ -1129,7 +1130,8 @@ impl ConnectionIndex {
         if datagram.is_initial() || datagram.is_0rtt() {
             if let Some(&ch) = self.connection_ids_initial.get(datagram.dst_cid()) {
                 println!(
-                    "Got RouteDatagramTo::Incoming: index: {:p}, dst_cid: {:?} thread: {:?}",
+                    "Got RouteDatagramTo::Incoming: {:?} index: {:p}, dst_cid: {:?} thread: {:?}",
+                    chrono::Utc::now(),
                     self,
                     datagram.dst_cid(),
                     std::thread::current().id()
