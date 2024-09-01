@@ -540,7 +540,8 @@ impl Endpoint {
         self.index
             .insert_initial_incoming(header.dst_cid, incoming_idx);
         println!(
-            "inserted incoming connection idx: {incoming_idx} {:p} {:?}",
+            "inserted incoming connection idx: {:p} {incoming_idx} {:p} {:?}",
+            &self.index,
             ptr,
             Backtrace::new()
         );
