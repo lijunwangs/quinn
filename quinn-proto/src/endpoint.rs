@@ -543,7 +543,7 @@ impl Endpoint {
         let incoming_idx = self.incoming_buffers.insert(IncomingBuffer::default());
         let ptr: *const Self = self;
         self.index
-            .insert_initial_incoming(header.dst_cid, incoming_idx);
+            .insert_initial_incoming(orig_dst_cid, incoming_idx);
         println!(
             "Inserted incoming connection into idx: {:p} index: {incoming_idx} endpoint: {:p} dst_cid: {:?} orig_dst_cid: {:?} {:?}",
             &self.index,
