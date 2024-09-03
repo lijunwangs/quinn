@@ -125,7 +125,9 @@ impl Endpoint {
                 }
             }
             Drained => {
+                println!("Removing connection as it is drained...");
                 if let Some(conn) = self.connections.try_remove(ch.0) {
+                    println!("Removing connection as it is drained {:?}...", conn.init_cid);
                     self.index.remove(&conn);
                 } else {
                     // This indicates a bug in downstream code, which could cause spurious
@@ -543,7 +545,7 @@ impl Endpoint {
         let incoming_idx = self.incoming_buffers.insert(IncomingBuffer::default());
         let ptr: *const Self = self;
         self.index
-            .insert_initial_incoming(orig_dst_cid, incoming_idx);
+            .insert_initial_incoming(header.dst_cid, incoming_idx);
         println!(
             "Inserted incoming connection into idx: {:p} index: {incoming_idx} endpoint: {:p} dst_cid: {:?} orig_dst_cid: {:?} {:?}",
             &self.index,
@@ -599,7 +601,7 @@ impl Endpoint {
 
         if self.cids_exhausted() {
             debug!("refusing connection");
-            self.index.remove_initial(incoming.orig_dst_cid);
+            self.index.remove_initial(incoming.packet.header.dst_cid);
             return Err(AcceptError {
                 cause: ConnectionError::CidsExhausted,
                 response: Some(self.initial_close(
@@ -628,7 +630,7 @@ impl Endpoint {
             .is_err()
         {
             debug!(packet_number, "failed to authenticate initial packet");
-            self.index.remove_initial(incoming.orig_dst_cid);
+            self.index.remove_initial(incoming.packet.header.dst_cid);
             return Err(AcceptError {
                 cause: TransportError::PROTOCOL_VIOLATION("authentication failed").into(),
                 response: None,
@@ -829,13 +831,14 @@ impl Endpoint {
     /// Clean up endpoint data structures associated with an `Incoming`.
     fn clean_up_incoming(&mut self, incoming: &Incoming) {
         let bt = Backtrace::new();
-        self.index.remove_initial(incoming.orig_dst_cid);
+        self.index.remove_initial(incoming.packet.header.dst_cid);
         let incoming_buffer = self.incoming_buffers.remove(incoming.incoming_idx);
         println!(
-            "Removed incoming_buffer {:?} at idx  {} dst_cid: {:?} {:p} in clean_up_incoming thread {:?} idx: {:p} {:?}",
+            "Removed incoming_buffer {:?} at idx  {} orig_dst_cid: {:?}  dst_cid: {:?} {:p} in clean_up_incoming thread {:?} idx: {:p} {:?}",
             chrono::Utc::now(),
             incoming.incoming_idx,
             incoming.orig_dst_cid,
+            incoming.packet.header.dst_cid,
             self as *const Self,
             std::thread::current().id(),
             &self.index,
@@ -1067,6 +1070,7 @@ impl ConnectionIndex {
         );
         self.connection_ids_initial
             .insert(dst_cid, RouteDatagramTo::Incoming(incoming_key));
+        trace!("Inserted incoming {dst_cid:?} len: {}", self.connection_ids_initial.len());
     }
 
     /// Remove an association with an initial destination CID
@@ -1114,7 +1118,9 @@ impl ConnectionIndex {
     /// Remove all references to a connection
     fn remove(&mut self, conn: &ConnectionMeta) {
         if conn.init_cid.len() > 0 {
+            trace!("Removing connection id {:?}", conn.init_cid);
             self.connection_ids_initial.remove(&conn.init_cid);
+            trace!("Removing connection id connection_ids_initial len: {}", self.connection_ids_initial.len());
         }
         for cid in conn.loc_cids.values() {
             self.connection_ids.remove(cid);
