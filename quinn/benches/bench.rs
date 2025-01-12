@@ -39,7 +39,7 @@ fn small_data_100_streams(bench: &mut Bencher) {
 }
 
 fn small_data_10m_streams(bench: &mut Bencher) {
-    send_data(bench, SMALL_DATA, 10_000_000);
+    send_data(bench, SMALL_DATA, 100_000);
 }
 
 fn send_data(bench: &mut Bencher, data: &'static [u8], concurrent_streams: usize) {
