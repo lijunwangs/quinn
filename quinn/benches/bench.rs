@@ -37,6 +37,10 @@ fn small_data_100_streams(bench: &mut Bencher) {
     send_data(bench, SMALL_DATA, 100);
 }
 
+fn small_data_10m_streams(bench: &mut Bencher) {
+    send_data(bench, SMALL_DATA, 10_000_000);
+}
+
 fn send_data(bench: &mut Bencher, data: &'static [u8], concurrent_streams: usize) {
     let _ = tracing_subscriber::fmt::try_init();
 
