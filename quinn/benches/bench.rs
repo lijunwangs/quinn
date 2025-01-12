@@ -17,7 +17,8 @@ benchmark_group!(
     large_data_1_stream,
     large_data_10_streams,
     small_data_1_stream,
-    small_data_100_streams
+    small_data_100_streams,
+    small_data_10m_streams
 );
 benchmark_main!(benches);
 
