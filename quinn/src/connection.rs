@@ -15,7 +15,7 @@ use pin_project_lite::pin_project;
 use rustc_hash::FxHashMap;
 use thiserror::Error;
 use tokio::sync::{futures::Notified, mpsc, oneshot, Notify};
-use tracing::{debug_span, Instrument, Span};
+use tracing::{debug_span, trace, Instrument, Span};
 
 use crate::{
     mutex::Mutex,
@@ -832,25 +832,29 @@ impl Future for SendDatagram<'_> {
         {
             Ok(()) => {
                 state.wake();
+                trace!("Successfully sent datagram");
                 Poll::Ready(Ok(()))
             }
-            Err(e) => Poll::Ready(Err(match e {
-                Blocked(data) => {
-                    this.data.replace(data);
-                    loop {
-                        match this.notify.as_mut().poll(ctx) {
-                            Poll::Pending => return Poll::Pending,
-                            // Spurious wakeup, get a new future
-                            Poll::Ready(()) => this
-                                .notify
-                                .set(this.conn.shared.datagrams_unblocked.notified()),
+            Err(e) => {
+                trace!("Error in sending datagram: {e:?}");
+                Poll::Ready(Err(match e {
+                    Blocked(data) => {
+                        this.data.replace(data);
+                        loop {
+                            match this.notify.as_mut().poll(ctx) {
+                                Poll::Pending => return Poll::Pending,
+                                // Spurious wakeup, get a new future
+                                Poll::Ready(()) => this
+                                    .notify
+                                    .set(this.conn.shared.datagrams_unblocked.notified()),
+                            }
                         }
                     }
-                }
-                UnsupportedByPeer => SendDatagramError::UnsupportedByPeer,
-                Disabled => SendDatagramError::Disabled,
-                TooLarge => SendDatagramError::TooLarge,
-            })),
+                    UnsupportedByPeer => SendDatagramError::UnsupportedByPeer,
+                    Disabled => SendDatagramError::Disabled,
+                    TooLarge => SendDatagramError::TooLarge,
+                }))
+            }
         }
     }
 }
