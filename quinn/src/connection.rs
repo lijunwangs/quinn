@@ -273,6 +273,8 @@ impl Future for ConnectionDriver {
         if conn.error.is_none() {
             unreachable!("drained connections always have an error");
         }
+        debug!("The connection is done, returning  Poll::Ready for : {conn:?}");
+
         Poll::Ready(Ok(()))
     }
 }
