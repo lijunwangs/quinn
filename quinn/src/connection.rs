@@ -251,7 +251,7 @@ impl Future for ConnectionDriver {
         }
         let drive_state = conn.drive_transmit(cx);
         if drive_state.is_err() {
-            debug!("connection terminated with error: {drive_state:?}");
+            debug!("connection drive_transmit with error: {drive_state:?}");
         }
         let mut keep_going = drive_state?;
         // If a timer expires, there might be more to transmit. When we transmit something, we
