@@ -208,6 +208,15 @@ impl Future for Connecting {
     }
 }
 
+impl Drop for ConnectionDriver {
+    fn drop(&mut self) {
+        debug!(
+            "ConnectionDriver dropped, terminating connection: {:?}",
+            self.0
+        );
+    }
+}
+
 /// Future that completes when a connection is fully established
 ///
 /// For clients, the resulting value indicates if 0-RTT was accepted. For servers, the resulting

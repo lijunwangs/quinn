@@ -3686,7 +3686,7 @@ impl fmt::Debug for Connection {
     }
 }
 
-impl  Drop for Connection {
+impl Drop for Connection {
     fn drop(&mut self) {
         debug!("Connection dropped: {self:?}");
     }
