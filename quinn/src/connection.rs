@@ -17,11 +17,7 @@ use tokio::sync::{futures::Notified, mpsc, oneshot, Notify};
 use tracing::{debug, debug_span, Instrument, Span};
 
 use crate::{
-    mutex::Mutex,
-    recv_stream::RecvStream,
-    runtime::{AsyncTimer, AsyncUdpSocket, Runtime, UdpPoller},
-    send_stream::SendStream,
-    udp_transmit, ConnectionEvent, Duration, Instant, VarInt,
+    connection, mutex::Mutex, recv_stream::RecvStream, runtime::{AsyncTimer, AsyncUdpSocket, Runtime, UdpPoller}, send_stream::SendStream, udp_transmit, ConnectionEvent, Duration, Instant, VarInt
 };
 use proto::{
     congestion::Controller, ConnectionError, ConnectionHandle, ConnectionStats, Dir, EndpointEvent,
@@ -241,7 +237,7 @@ impl Future for ConnectionDriver {
     fn poll(self: Pin<&mut Self>, cx: &mut Context) -> Poll<Self::Output> {
         let conn = &mut *self.0.state.lock("poll");
 
-        let span = debug_span!("drive", id = conn.handle.0);
+        let span = debug_span!("drive transmit", id = conn.handle.0);
         let _guard = span.enter();
 
         if let Err(e) = conn.process_conn_events(&self.0.shared, cx) {
