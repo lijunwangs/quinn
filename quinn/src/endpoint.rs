@@ -28,7 +28,7 @@ use rustc_hash::FxHashMap;
 #[cfg(all(not(wasm_browser), any(feature = "aws-lc-rs", feature = "ring"),))]
 use socket2::{Domain, Protocol, Socket, Type};
 use tokio::sync::{futures::Notified, mpsc, Notify};
-use tracing::{Instrument, Span};
+use tracing::{debug, Instrument, Span};
 use udp::{RecvMeta, BATCH_SIZE};
 
 use crate::{
@@ -47,6 +47,12 @@ pub struct Endpoint {
     pub(crate) inner: EndpointRef,
     pub(crate) default_client_config: Option<ClientConfig>,
     runtime: Arc<dyn Runtime>,
+}
+
+impl Drop for Endpoint {
+    fn drop(&mut self) {
+        debug!("dropping endpoint: {self:?}");
+    }
 }
 
 impl Endpoint {
