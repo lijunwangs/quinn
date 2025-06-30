@@ -6,8 +6,8 @@ use tracing::{debug, trace};
 
 use super::Connection;
 use crate::{
-    TransportError,
     frame::{Datagram, FrameStruct},
+    TransportError,
 };
 
 /// API to control datagram traffic

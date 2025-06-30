@@ -2,14 +2,14 @@ use std::{
     future::Future,
     io,
     pin::Pin,
-    task::{Context, Poll, ready},
+    task::{ready, Context, Poll},
 };
 
 use bytes::Bytes;
 use proto::{ClosedStream, ConnectionError, FinishError, StreamId, Written};
 use thiserror::Error;
 
-use crate::{VarInt, connection::ConnectionRef};
+use crate::{connection::ConnectionRef, VarInt};
 
 /// A stream that can only be used to send data
 ///

@@ -1,6 +1,6 @@
 use std::{
     cmp::Ordering,
-    collections::{BinaryHeap, binary_heap::PeekMut},
+    collections::{binary_heap::PeekMut, BinaryHeap},
     mem,
 };
 

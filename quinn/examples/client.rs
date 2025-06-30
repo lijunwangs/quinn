@@ -11,7 +11,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 use clap::Parser;
 use proto::crypto::rustls::QuicClientConfig;
 use rustls::pki_types::CertificateDer;

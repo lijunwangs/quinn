@@ -4,10 +4,10 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr, UdpSocket},
 };
 
-use criterion::{Criterion, criterion_group, criterion_main};
+use criterion::{criterion_group, criterion_main, Criterion};
 use tokio::{io::Interest, runtime::Runtime};
 
-use quinn_udp::{BATCH_SIZE, RecvMeta, Transmit, UdpSocketState};
+use quinn_udp::{RecvMeta, Transmit, UdpSocketState, BATCH_SIZE};
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     const TOTAL_BYTES: usize = 10 * 1024 * 1024;

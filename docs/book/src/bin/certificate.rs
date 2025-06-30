@@ -1,16 +1,16 @@
 use std::{error::Error, sync::Arc};
 
 use quinn::{
-    ClientConfig,
     crypto::rustls::{NoInitialCipherSuite, QuicClientConfig},
+    ClientConfig,
 };
 use rustls::{
-    DigitallySignedStruct, SignatureScheme,
     client::danger,
-    crypto::{CryptoProvider, verify_tls12_signature, verify_tls13_signature},
+    crypto::{verify_tls12_signature, verify_tls13_signature, CryptoProvider},
     pki_types::{
-        CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer, ServerName, UnixTime, pem::PemObject,
+        pem::PemObject, CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer, ServerName, UnixTime,
     },
+    DigitallySignedStruct, SignatureScheme,
 };
 
 #[allow(unused_variables)]
@@ -87,16 +87,16 @@ impl danger::ServerCertVerifier for SkipServerVerification {
     }
 }
 
-fn generate_self_signed_cert()
--> Result<(CertificateDer<'static>, PrivatePkcs8KeyDer<'static>), Box<dyn Error>> {
+fn generate_self_signed_cert(
+) -> Result<(CertificateDer<'static>, PrivatePkcs8KeyDer<'static>), Box<dyn Error>> {
     let cert = rcgen::generate_simple_self_signed(vec!["localhost".to_string()])?;
     let cert_der = CertificateDer::from(cert.cert);
     let key = PrivatePkcs8KeyDer::from(cert.key_pair.serialize_der());
     Ok((cert_der, key))
 }
 
-fn read_certs_from_file()
--> Result<(Vec<CertificateDer<'static>>, PrivateKeyDer<'static>), Box<dyn Error>> {
+fn read_certs_from_file(
+) -> Result<(Vec<CertificateDer<'static>>, PrivateKeyDer<'static>), Box<dyn Error>> {
     let certs = CertificateDer::pem_file_iter("./fullchain.pem")
         .unwrap()
         .map(|cert| cert.unwrap())

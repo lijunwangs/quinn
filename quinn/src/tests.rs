@@ -16,11 +16,11 @@ use std::{
 use crate::runtime::TokioRuntime;
 use crate::{Duration, Instant};
 use bytes::Bytes;
-use proto::{RandomConnectionIdGenerator, crypto::rustls::QuicClientConfig};
-use rand::{RngCore, SeedableRng, rngs::StdRng};
+use proto::{crypto::rustls::QuicClientConfig, RandomConnectionIdGenerator};
+use rand::{rngs::StdRng, RngCore, SeedableRng};
 use rustls::{
-    RootCertStore,
     pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer},
+    RootCertStore,
 };
 use tokio::runtime::{Builder, Runtime};
 use tracing::{error_span, info};

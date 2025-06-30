@@ -7,7 +7,7 @@ use std::{
 use anyhow::{Context, Result};
 use bytes::Bytes;
 use clap::Parser;
-use quinn::{TokioRuntime, crypto::rustls::QuicClientConfig};
+use quinn::{crypto::rustls::QuicClientConfig, TokioRuntime};
 use rustls::pki_types::{CertificateDer, ServerName, UnixTime};
 use tokio::sync::Semaphore;
 use tracing::{debug, error, info};
