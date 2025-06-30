@@ -210,8 +210,9 @@ impl Future for Connecting {
 
 impl Drop for ConnectionDriver {
     fn drop(&mut self) {
+        let bt = std::backtrace::Backtrace::capture();
         debug!(
-            "ConnectionDriver dropped, terminating connection: {:?}",
+            "ConnectionDriver dropped, terminating connection: {:?}, backtrace: {bt:?}",
             self.0
         );
     }
