@@ -3686,6 +3686,12 @@ impl fmt::Debug for Connection {
     }
 }
 
+impl  Drop for Connection {
+    fn drop(&mut self) {
+        debug!("Connection dropped: {self:?}");
+    }
+}
+
 /// Fields of `Connection` specific to it being client-side or server-side
 enum ConnectionSide {
     Client {
