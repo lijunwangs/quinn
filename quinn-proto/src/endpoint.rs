@@ -678,6 +678,8 @@ impl Endpoint {
     ) -> Result<(), TransportError> {
         let config = &self.server_config.as_ref().unwrap();
         if self.cids_exhausted() || self.incoming_buffers.len() >= config.max_incoming {
+            debug!("refusing connection due to exhausted CIDs or too many incoming connections: exhausted CIDs = {}, incoming connections = {}, max incoming = {}",
+                self.cids_exhausted(), self.incoming_buffers.len(), config.max_incoming);
             return Err(TransportError::CONNECTION_REFUSED(""));
         }
 
