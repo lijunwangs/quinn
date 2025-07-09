@@ -707,6 +707,10 @@ impl Endpoint {
     pub fn refuse(&mut self, incoming: Incoming, buf: &mut Vec<u8>) -> Transmit {
         self.clean_up_incoming(&incoming);
         incoming.improper_drop_warner.dismiss();
+        debug!(
+            "refusing connection attempt from {} with DCID {}",
+            incoming.addresses.remote, incoming.packet.header.dst_cid
+        );
 
         self.initial_close(
             incoming.packet.header.version,
