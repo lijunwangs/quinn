@@ -272,14 +272,19 @@ impl Endpoint {
             };
 
             if let Err(reason) = self.early_validate_first_packet(header) {
-                return Some(DatagramEvent::Response(self.initial_close(
-                    header.version,
-                    addresses,
-                    &crypto,
-                    &header.src_cid,
-                    reason,
-                    buf,
-                )));
+                if reason == TransportError::CONNECTION_IGNORED("") {
+                    debug!("ignoring connection attempt due to early validation failure");
+                    return Some(DatagramEvent::Ignored);
+                } else {
+                    return Some(DatagramEvent::Response(self.initial_close(
+                        header.version,
+                        addresses,
+                        &crypto,
+                        &header.src_cid,
+                        reason,
+                        buf,
+                    )));
+                }
             }
 
             return match first_decode.finish(Some(&*crypto.header.remote)) {
@@ -697,7 +702,7 @@ impl Endpoint {
         if self.cids_exhausted() || self.incoming_buffers.len() >= config.max_incoming {
             debug!("refusing connection due to exhausted CIDs or too many incoming connections: exhausted CIDs = {}, incoming connections = {}, max incoming = {}",
                 self.cids_exhausted(), self.incoming_buffers.len(), config.max_incoming);
-            return Err(TransportError::CONNECTION_REFUSED(""));
+            return Err(TransportError::CONNECTION_IGNORED(""));
         }
 
         // RFC9000 §7.2 dictates that initial (client-chosen) destination CIDs must be at least 8
@@ -1180,6 +1185,8 @@ pub enum DatagramEvent {
     NewConnection(Incoming),
     /// Response generated directly by the endpoint
     Response(Transmit),
+    /// The datagram was ignored, e.g. because it was malformed
+    Ignored,
 }
 
 /// An incoming connection for which the server has not yet begun its part of the handshake.

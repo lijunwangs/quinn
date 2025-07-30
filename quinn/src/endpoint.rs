@@ -820,6 +820,10 @@ impl RecvState {
                                 Some(DatagramEvent::Response(transmit)) => {
                                     respond(transmit, &response_buffer, socket);
                                 }
+                                Some(DatagramEvent::Ignored) => {
+                                    // Datagram was ignored, e.g. due to being malformed
+                                    tracing::debug!("ignoring datagram from {}", meta.addr);
+                                }
                                 None => {}
                             }
                         }

@@ -403,6 +403,10 @@ impl TestEndpoint {
                         self.outbound.extend(split_transmit(transmit, &buf[..size]));
                         buf.clear();
                     }
+                    DatagramEvent::Ignored => {
+                        // Datagram was ignored, e.g. due to being malformed
+                        tracing::debug!("ignoring datagram from {}", remote);
+                    }
                 }
             }
         }
