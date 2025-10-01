@@ -450,14 +450,19 @@ impl Endpoint {
         };
 
         if let Err(reason) = self.early_validate_first_packet(header) {
-            return Some(DatagramEvent::Response(self.initial_close(
-                header.version,
-                addresses,
-                &crypto,
-                &header.src_cid,
-                reason,
-                buf,
-            )));
+            if reason == TransportError::CONNECTION_IGNORED("") {
+                debug!("ignoring connection attempt: {}", reason);
+                return Some(DatagramEvent::Ignored);
+            } else {
+                return Some(DatagramEvent::Response(self.initial_close(
+                    header.version,
+                    addresses,
+                    &crypto,
+                    &header.src_cid,
+                    reason,
+                    buf,
+                )));
+            }
         }
 
         let packet = match event.first_decode.finish(Some(&*crypto.header.remote)) {
